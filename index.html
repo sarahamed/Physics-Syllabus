@@ -6,11 +6,10 @@
 <title>المحتوى العلمي (قسم الفيزياء)</title>
 <style>
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
   body { margin: 0; min-height: 100vh; display: flex; flex-direction: column;
     font-family: "Segoe UI", Tahoma, Arial, sans-serif; color: #1b2a3a;
     background: linear-gradient(180deg, #eaf1f8 0%, #f8fafc 100%); }
-  body.viewing { overflow: hidden; }
 
   header { background: #fff; border-bottom: 5px solid #c9a227; box-shadow: 0 2px 10px rgba(11,79,128,.12); padding: 20px 32px; }
   .logos { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
@@ -18,34 +17,34 @@
   main { flex: 1; text-align: center; padding: 40px 16px; }
   h1.title { display: inline-block; margin: 0 0 36px; padding-bottom: 12px; color: #0b4f80; font-size: 2rem; border-bottom: 3px solid #c9a227; }
   .links { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-  .btn { display: block; width: 100%; max-width: 480px; padding: 16px 24px; color: #fff; text-decoration: none; cursor: pointer;
+  .item { width: 100%; max-width: 900px; display: flex; flex-direction: column; align-items: center; }
+  .btn { display: block; width: 100%; max-width: 480px; padding: 16px 24px; color: #fff; cursor: pointer;
     font: 600 1.1rem "Segoe UI", Tahoma, Arial, sans-serif; border: 0; border-radius: 10px;
     background: linear-gradient(135deg, #0b4f80, #1a74b8); box-shadow: 0 4px 12px rgba(11,79,128,.25); transition: transform .15s; }
   .btn:hover { transform: translateY(-2px); }
+  .btn[aria-expanded="true"] { outline: 3px solid #c9a227; outline-offset: 2px; }
   footer { background: #0b3a5e; color: #cfdceb; padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); font-size: 11px; direction: ltr; text-align: left; }
 
-  /* ---------- Viewer ---------- */
-  #viewer { position: fixed; inset: 0; z-index: 50; display: none; flex-direction: column; background: #e4ebf3; }
-  #viewer.open { display: flex; }
-  .vbar { display: flex; align-items: center; gap: 10px; background: #0b3a5e; color: #fff;
-    padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
-  .vbar .vtitle { flex: 1; min-width: 0; font-weight: 600; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .vbar button { font: 600 .95rem "Segoe UI", Tahoma, Arial, sans-serif; cursor: pointer; border: 0; border-radius: 8px; padding: 9px 14px; }
-  .close { background: rgba(255,255,255,.15); color: #fff; }
-  .close:hover { background: rgba(255,255,255,.28); }
+  /* ---------- Inline preview (opens right under the button) ---------- */
+  .panel { width: 100%; margin-top: 14px; background: #fff; border-radius: 12px; box-shadow: 0 4px 18px rgba(11,79,128,.18); text-align: start; }
+  .panel[hidden] { display: none; }
+  .pbar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 10px;
+    background: #0b3a5e; color: #fff; padding: 10px 14px; border-radius: 12px 12px 0 0; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+  .ptitle { flex: 1; min-width: 0; font-weight: 600; font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pbar button { font: 600 .92rem "Segoe UI", Tahoma, Arial, sans-serif; cursor: pointer; border: 0; border-radius: 8px; padding: 9px 14px; }
+  .pclose { background: rgba(255,255,255,.15); color: #fff; }
+  .pclose:hover { background: rgba(255,255,255,.28); }
   .dd { position: relative; }
-  .dd > button { background: linear-gradient(135deg, #b8901a, #d9b13a); color: #1b2a3a; }
+  .ddBtn { background: linear-gradient(135deg, #b8901a, #d9b13a); color: #1b2a3a; }
   .menu { display: none; position: absolute; top: calc(100% + 6px); inset-inline-end: 0; min-width: 230px; background: #fff; color: #1b2a3a;
-    border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.25); overflow: hidden; z-index: 5; }
+    border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.25); overflow: hidden; z-index: 20; }
   .menu.show { display: block; }
   .menu a, .menu button { display: block; width: 100%; text-align: start; padding: 13px 16px; background: #fff; color: #1b2a3a;
     text-decoration: none; font: 500 .95rem "Segoe UI", Tahoma, Arial, sans-serif; border: 0; border-radius: 0; cursor: pointer; }
   .menu a:hover, .menu button:hover { background: #eef4fa; }
   .menu > * + * { border-top: 1px solid #e3eaf2; }
 
-  .vscroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 22px 12px calc(28px + env(safe-area-inset-bottom, 0px)); }
-  .paper { max-width: 860px; margin: 0 auto; background: #fff; padding: 40px 48px; border-radius: 6px;
-    box-shadow: 0 3px 14px rgba(11,79,128,.18); font-size: 1.05rem; line-height: 1.95; text-align: justify; color: #111; }
+  .paper { padding: 32px 40px; font-size: 1.05rem; line-height: 1.95; text-align: justify; color: #111; }
   .paper p { margin: 0 0 .7em; }
   .paper .doctitle { text-align: center; font-size: 1.5rem; font-weight: 700; color: #0b4f80; margin-bottom: 1em; }
   .paper .course { margin-top: 1.8em; padding-bottom: 4px; font-size: 1.15rem; color: #0b4f80; border-bottom: 2px solid #c9a227; break-after: avoid; }
@@ -55,28 +54,28 @@
   @media (max-width: 700px) {
     header { padding: 12px 14px; border-bottom-width: 4px; }
     .logos img { height: 78px; }
-    main { padding: 24px 12px; }
+    main { padding: 24px 10px; }
     h1.title { font-size: 1.25rem; line-height: 1.6; margin-bottom: 24px; padding-bottom: 8px; }
     .btn { padding: 14px 16px; font-size: 1rem; }
-    .vbar { padding-inline: 10px; gap: 8px; }
-    .vbar .vtitle { font-size: .85rem; }
-    .vbar button { padding: 8px 10px; font-size: .85rem; }
-    .vscroll { padding: 10px 6px calc(20px + env(safe-area-inset-bottom, 0px)); }
-    .paper { padding: 18px 16px; font-size: .95rem; line-height: 1.85; }
+    .panel { margin-top: 12px; border-radius: 10px; }
+    .pbar { padding: 8px 10px; gap: 8px; border-radius: 10px 10px 0 0; }
+    .ptitle { font-size: .8rem; }
+    .pbar button { padding: 8px 10px; font-size: .82rem; }
+    .paper { padding: 16px 14px; font-size: .95rem; line-height: 1.85; }
     .paper .doctitle { font-size: 1.2rem; }
     .paper .course { font-size: 1.02rem; }
     .menu { min-width: 200px; }
   }
   @media (max-width: 380px) { .logos img { height: 62px; } h1.title { font-size: 1.1rem; } }
 
-  /* ---------- Print / Save as PDF ---------- */
+  /* ---------- Print / Save as PDF: only the open document ---------- */
   @media print {
-    body.viewing { overflow: visible; background: #fff; }
-    body.viewing > *:not(#viewer) { display: none !important; }
-    #viewer { position: static; display: block; background: #fff; }
-    .vbar { display: none !important; }
-    .vscroll { overflow: visible; padding: 0; }
-    .paper { max-width: none; padding: 0; box-shadow: none; border-radius: 0; font-size: 12pt; }
+    body { background: #fff; }
+    body.viewing header, body.viewing footer, body.viewing h1.title, body.viewing .btn,
+    body.viewing .item:not(.open), body.viewing .pbar { display: none !important; }
+    body.viewing main { padding: 0; }
+    body.viewing .panel { margin: 0; box-shadow: none; border-radius: 0; }
+    body.viewing .paper { padding: 0; font-size: 12pt; }
     .paper p { orphans: 3; widows: 3; }
     @page { margin: 16mm; }
   }
@@ -93,28 +92,44 @@
   <main>
     <h1 class="title">المحتوى العلمي (قسم الفيزياء)</h1>
     <div class="links">
-      <button class="btn" data-doc="arb" data-file="Syllabus_arb.doc" data-title="المحتوى العلمي علوم (باللغة العربية)" data-dir="rtl">المحتوى العلمي علوم (باللغة العربية)</button>
-      <button class="btn" data-doc="eng" data-file="Syllabus_eng.doc" data-title="المحتوى العلمي علوم (باللغة الإنجليزية)" data-dir="ltr">المحتوى العلمي علوم (باللغة الإنجليزية)</button>
+      <div class="item" id="item-arb">
+        <button class="btn" aria-expanded="false" data-doc="arb" data-file="Syllabus_arb.doc" data-title="المحتوى العلمي علوم (باللغة العربية)" data-dir="rtl">المحتوى العلمي علوم (باللغة العربية)</button>
+        <section class="panel" hidden>
+          <div class="pbar">
+            <button class="pclose" type="button">✕ إغلاق</button>
+            <span class="ptitle">المحتوى العلمي علوم (باللغة العربية)</span>
+            <div class="dd">
+              <button class="ddBtn" type="button" aria-haspopup="true" aria-expanded="false">⬇ تحميل ▾</button>
+              <div class="menu">
+                <a class="dlWord" href="Syllabus_arb.doc" download="Syllabus_arb.doc">📄 تحميل نسخة (Word)</a>
+                <button class="printBtn" type="button">🖨 طباعة / حفظ كـ PDF</button>
+              </div>
+            </div>
+          </div>
+          <article class="paper"></article>
+        </section>
+      </div>
+      <div class="item" id="item-eng">
+        <button class="btn" aria-expanded="false" data-doc="eng" data-file="Syllabus_eng.doc" data-title="المحتوى العلمي علوم (باللغة الإنجليزية)" data-dir="ltr">المحتوى العلمي علوم (باللغة الإنجليزية)</button>
+        <section class="panel" hidden>
+          <div class="pbar">
+            <button class="pclose" type="button">✕ إغلاق</button>
+            <span class="ptitle">المحتوى العلمي علوم (باللغة الإنجليزية)</span>
+            <div class="dd">
+              <button class="ddBtn" type="button" aria-haspopup="true" aria-expanded="false">⬇ تحميل ▾</button>
+              <div class="menu">
+                <a class="dlWord" href="Syllabus_eng.doc" download="Syllabus_eng.doc">📄 تحميل نسخة (Word)</a>
+                <button class="printBtn" type="button">🖨 طباعة / حفظ كـ PDF</button>
+              </div>
+            </div>
+          </div>
+          <article class="paper"></article>
+        </section>
+      </div>
     </div>
   </main>
 
   <footer>created by Sara Hamed</footer>
-
-  <!-- Viewer -->
-  <div id="viewer" role="dialog" aria-modal="true" aria-label="معاينة الملف">
-    <div class="vbar">
-      <button class="close" id="closeBtn" aria-label="إغلاق">✕ إغلاق</button>
-      <span class="vtitle" id="vtitle"></span>
-      <div class="dd">
-        <button id="ddBtn" aria-haspopup="true" aria-expanded="false">⬇ تحميل ▾</button>
-        <div class="menu" id="menu">
-          <a id="dlWord" download>📄 تحميل نسخة (Word)</a>
-          <button id="printBtn">🖨 طباعة / حفظ كـ PDF</button>
-        </div>
-      </div>
-    </div>
-    <div class="vscroll"><article class="paper" id="paper"></article></div>
-  </div>
 
   <template id="tpl-arb"><p class="doctitle"><strong><u>مقررات قسم الفيزياء</u></strong></p>
 
@@ -1445,51 +1460,68 @@
 </template>
 
 <script>
-  const viewer = document.getElementById("viewer"),
-        paper = document.getElementById("paper"),
-        vtitle = document.getElementById("vtitle"),
-        dlWord = document.getElementById("dlWord"),
-        menu = document.getElementById("menu"),
-        ddBtn = document.getElementById("ddBtn");
   const originalTitle = document.title;
-  let currentTitle = "";
+  const items = document.querySelectorAll(".item");
 
-  function setMenu(open) {
-    menu.classList.toggle("show", open);
-    ddBtn.setAttribute("aria-expanded", open);
+  function closeMenus() {
+    document.querySelectorAll(".menu.show").forEach(m => {
+      m.classList.remove("show");
+      m.parentElement.querySelector(".ddBtn").setAttribute("aria-expanded", "false");
+    });
   }
-  function openDoc(b) {
-    const tpl = document.getElementById("tpl-" + b.dataset.doc);
+
+  function closeItem(item) {
+    closeMenus();
+    item.classList.remove("open");
+    item.querySelector(".btn").setAttribute("aria-expanded", "false");
+    item.querySelector(".panel").hidden = true;
+    item.querySelector(".paper").innerHTML = "";
+    if (!document.querySelector(".item.open")) document.body.classList.remove("viewing");
+  }
+
+  function openItem(item) {
+    items.forEach(i => { if (i !== item && i.classList.contains("open")) closeItem(i); });
+    const btn = item.querySelector(".btn");
+    const paper = item.querySelector(".paper");
     paper.innerHTML = "";
-    paper.appendChild(tpl.content.cloneNode(true));
-    paper.dir = b.dataset.dir;
-    paper.lang = b.dataset.dir === "rtl" ? "ar" : "en";
-    currentTitle = b.dataset.title;
-    vtitle.textContent = currentTitle;
-    dlWord.href = b.dataset.file;
-    dlWord.setAttribute("download", b.dataset.file);
-    setMenu(false);
-    viewer.classList.add("open");
+    paper.appendChild(document.getElementById("tpl-" + btn.dataset.doc).content.cloneNode(true));
+    paper.dir = btn.dataset.dir;
+    paper.lang = btn.dataset.dir === "rtl" ? "ar" : "en";
+    item.querySelector(".panel").hidden = false;
+    item.classList.add("open");
+    btn.setAttribute("aria-expanded", "true");
     document.body.classList.add("viewing");
-    document.querySelector(".vscroll").scrollTop = 0;
-  }
-  function closeDoc() {
-    setMenu(false);
-    viewer.classList.remove("open");
-    document.body.classList.remove("viewing");
-    paper.innerHTML = "";
+    // bring the pressed button + its preview into view
+    setTimeout(() => btn.scrollIntoView({ behavior: "smooth", block: "start" }), 30);
   }
 
-  document.querySelectorAll(".btn[data-doc]").forEach(b => b.addEventListener("click", () => openDoc(b)));
-  document.getElementById("closeBtn").addEventListener("click", closeDoc);
-  ddBtn.addEventListener("click", e => { e.stopPropagation(); setMenu(!menu.classList.contains("show")); });
-  document.addEventListener("click", e => { if (!menu.contains(e.target)) setMenu(false); });
-  dlWord.addEventListener("click", () => setMenu(false));
-  document.addEventListener("keydown", e => { if (e.key === "Escape") viewer.classList.contains("open") ? closeDoc() : null; });
+  items.forEach(item => {
+    const btn = item.querySelector(".btn");
+    btn.addEventListener("click", () => item.classList.contains("open") ? closeItem(item) : openItem(item));
+    item.querySelector(".pclose").addEventListener("click", () => {
+      closeItem(item);
+      btn.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    const dd = item.querySelector(".ddBtn"), menu = item.querySelector(".menu");
+    dd.addEventListener("click", e => {
+      e.stopPropagation();
+      const show = !menu.classList.contains("show");
+      closeMenus();
+      menu.classList.toggle("show", show);
+      dd.setAttribute("aria-expanded", show);
+    });
+    item.querySelector(".dlWord").addEventListener("click", closeMenus);
+    item.querySelector(".printBtn").addEventListener("click", () => { closeMenus(); setTimeout(() => window.print(), 50); });
+  });
 
-  document.getElementById("printBtn").addEventListener("click", () => { setMenu(false); setTimeout(() => window.print(), 50); });
+  document.addEventListener("click", closeMenus);
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeMenus(); });
+
   // File name suggested when saving as PDF = document title
-  window.addEventListener("beforeprint", () => { if (viewer.classList.contains("open")) document.title = currentTitle; });
+  window.addEventListener("beforeprint", () => {
+    const open = document.querySelector(".item.open .btn");
+    if (open) document.title = open.dataset.title;
+  });
   window.addEventListener("afterprint", () => { document.title = originalTitle; });
 </script>
 </body>
