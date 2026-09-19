@@ -10,43 +10,76 @@
   body { margin: 0; min-height: 100vh; display: flex; flex-direction: column;
     font-family: "Segoe UI", Tahoma, Arial, sans-serif; color: #1b2a3a;
     background: linear-gradient(180deg, #eaf1f8 0%, #f8fafc 100%); }
+  body.viewing { overflow: hidden; }
+
   header { background: #fff; border-bottom: 5px solid #c9a227; box-shadow: 0 2px 10px rgba(11,79,128,.12); padding: 20px 32px; }
-  .logos { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: nowrap; }
+  .logos { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
   .logos img { height: 130px; max-width: 45%; width: auto; object-fit: contain; }
   main { flex: 1; text-align: center; padding: 40px 16px; }
-  h1 { display: inline-block; margin: 0 0 36px; padding-bottom: 12px; color: #0b4f80; font-size: 2rem; border-bottom: 3px solid #c9a227; }
+  h1.title { display: inline-block; margin: 0 0 36px; padding-bottom: 12px; color: #0b4f80; font-size: 2rem; border-bottom: 3px solid #c9a227; }
   .links { display: flex; flex-direction: column; align-items: center; gap: 16px; }
   .btn { display: block; width: 100%; max-width: 480px; padding: 16px 24px; color: #fff; text-decoration: none; cursor: pointer;
     font: 600 1.1rem "Segoe UI", Tahoma, Arial, sans-serif; border: 0; border-radius: 10px;
     background: linear-gradient(135deg, #0b4f80, #1a74b8); box-shadow: 0 4px 12px rgba(11,79,128,.25); transition: transform .15s; }
   .btn:hover { transform: translateY(-2px); }
-  .btn.active { outline: 3px solid #c9a227; }
-  #preview { display: none; max-width: 1000px; margin: 36px auto 0; background: #fff; border-radius: 12px;
-    box-shadow: 0 4px 18px rgba(11,79,128,.18); padding: 16px; }
-  #preview h2 { margin: 4px 0 12px; color: #0b4f80; font-size: 1.2rem; }
-  #frameWrap { position: relative; height: 75vh; min-height: 420px; border: 1px solid #d5dee8; border-radius: 8px; overflow: hidden; background: #f3f6fa; }
-  #frameWrap iframe { width: 100%; height: 100%; border: 0; }
-  #loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #55697d; }
-  #note { margin: 10px 0 0; font-size: .9rem; color: #55697d; }
-  #download { margin: 18px auto 4px; background: linear-gradient(135deg, #b8901a, #d9b13a); color: #1b2a3a; }
+  footer { background: #0b3a5e; color: #cfdceb; padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); font-size: 11px; direction: ltr; text-align: left; }
+
+  /* ---------- Viewer ---------- */
+  #viewer { position: fixed; inset: 0; z-index: 50; display: none; flex-direction: column; background: #e4ebf3; }
+  #viewer.open { display: flex; }
+  .vbar { display: flex; align-items: center; gap: 10px; background: #0b3a5e; color: #fff;
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .vbar .vtitle { flex: 1; min-width: 0; font-weight: 600; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .vbar button { font: 600 .95rem "Segoe UI", Tahoma, Arial, sans-serif; cursor: pointer; border: 0; border-radius: 8px; padding: 9px 14px; }
+  .close { background: rgba(255,255,255,.15); color: #fff; }
+  .close:hover { background: rgba(255,255,255,.28); }
+  .dd { position: relative; }
+  .dd > button { background: linear-gradient(135deg, #b8901a, #d9b13a); color: #1b2a3a; }
+  .menu { display: none; position: absolute; top: calc(100% + 6px); inset-inline-end: 0; min-width: 230px; background: #fff; color: #1b2a3a;
+    border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.25); overflow: hidden; z-index: 5; }
+  .menu.show { display: block; }
+  .menu a, .menu button { display: block; width: 100%; text-align: start; padding: 13px 16px; background: #fff; color: #1b2a3a;
+    text-decoration: none; font: 500 .95rem "Segoe UI", Tahoma, Arial, sans-serif; border: 0; border-radius: 0; cursor: pointer; }
+  .menu a:hover, .menu button:hover { background: #eef4fa; }
+  .menu > * + * { border-top: 1px solid #e3eaf2; }
+
+  .vscroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 22px 12px calc(28px + env(safe-area-inset-bottom, 0px)); }
+  .paper { max-width: 860px; margin: 0 auto; background: #fff; padding: 40px 48px; border-radius: 6px;
+    box-shadow: 0 3px 14px rgba(11,79,128,.18); font-size: 1.05rem; line-height: 1.95; text-align: justify; color: #111; }
+  .paper p { margin: 0 0 .7em; }
+  .paper .doctitle { text-align: center; font-size: 1.5rem; font-weight: 700; color: #0b4f80; margin-bottom: 1em; }
+  .paper .course { margin-top: 1.8em; padding-bottom: 4px; font-size: 1.15rem; color: #0b4f80; border-bottom: 2px solid #c9a227; break-after: avoid; }
+  .paper .course u, .paper .doctitle u { text-decoration: none; }
+  .paper ul { margin: 0 0 .8em; padding-inline-start: 1.4em; }
 
   @media (max-width: 700px) {
     header { padding: 12px 14px; border-bottom-width: 4px; }
     .logos img { height: 78px; }
     main { padding: 24px 12px; }
-    h1 { font-size: 1.25rem; line-height: 1.6; margin-bottom: 24px; padding-bottom: 8px; }
+    h1.title { font-size: 1.25rem; line-height: 1.6; margin-bottom: 24px; padding-bottom: 8px; }
     .btn { padding: 14px 16px; font-size: 1rem; }
-    #preview { margin-top: 24px; padding: 10px; border-radius: 10px; }
-    #preview h2 { font-size: 1rem; }
-    #frameWrap { height: 70vh; min-height: 360px; }
-    #note { font-size: .82rem; }
-    #download { margin-top: 14px; }
+    .vbar { padding-inline: 10px; gap: 8px; }
+    .vbar .vtitle { font-size: .85rem; }
+    .vbar button { padding: 8px 10px; font-size: .85rem; }
+    .vscroll { padding: 10px 6px calc(20px + env(safe-area-inset-bottom, 0px)); }
+    .paper { padding: 18px 16px; font-size: .95rem; line-height: 1.85; }
+    .paper .doctitle { font-size: 1.2rem; }
+    .paper .course { font-size: 1.02rem; }
+    .menu { min-width: 200px; }
   }
-  @media (max-width: 380px) {
-    .logos img { height: 62px; }
-    h1 { font-size: 1.1rem; }
+  @media (max-width: 380px) { .logos img { height: 62px; } h1.title { font-size: 1.1rem; } }
+
+  /* ---------- Print / Save as PDF ---------- */
+  @media print {
+    body.viewing { overflow: visible; background: #fff; }
+    body.viewing > *:not(#viewer) { display: none !important; }
+    #viewer { position: static; display: block; background: #fff; }
+    .vbar { display: none !important; }
+    .vscroll { overflow: visible; padding: 0; }
+    .paper { max-width: none; padding: 0; box-shadow: none; border-radius: 0; font-size: 12pt; }
+    .paper p { orphans: 3; widows: 3; }
+    @page { margin: 16mm; }
   }
-  footer { background: #0b3a5e; color: #cfdceb; padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); font-size: 11px; direction: ltr; text-align: left; }
 </style>
 </head>
 <body>
@@ -58,45 +91,1406 @@
   </header>
 
   <main>
-    <h1>المحتوى العلمي (قسم الفيزياء)</h1>
+    <h1 class="title">المحتوى العلمي (قسم الفيزياء)</h1>
     <div class="links">
-      <button class="btn" data-file="Syllabus_arb.doc" data-title="المحتوى العلمي علوم (باللغة العربية)">المحتوى العلمي علوم (باللغة العربية)</button>
-      <button class="btn" data-file="Syllabus_eng.doc" data-title="المحتوى العلمي علوم (باللغة الإنجليزية)">المحتوى العلمي علوم (باللغة الإنجليزية)</button>
+      <button class="btn" data-doc="arb" data-file="Syllabus_arb.doc" data-title="المحتوى العلمي علوم (باللغة العربية)" data-dir="rtl">المحتوى العلمي علوم (باللغة العربية)</button>
+      <button class="btn" data-doc="eng" data-file="Syllabus_eng.doc" data-title="المحتوى العلمي علوم (باللغة الإنجليزية)" data-dir="ltr">المحتوى العلمي علوم (باللغة الإنجليزية)</button>
     </div>
-
-    <section id="preview">
-      <h2 id="pTitle"></h2>
-      <div id="frameWrap">
-        <div id="loading">جارٍ تحميل المعاينة...</div>
-        <iframe id="frame" title="معاينة الملف"></iframe>
-      </div>
-      <p id="note">إذا لم تظهر المعاينة يمكنك تحميل الملف مباشرة من الزر بالأسفل.</p>
-      <a id="download" class="btn" download>⬇ تحميل الملف (Word)</a>
-    </section>
   </main>
 
   <footer>created by Sara Hamed</footer>
 
-<script>
-  const buttons = document.querySelectorAll(".btn[data-file]");
-  const preview = document.getElementById("preview");
-  const frame = document.getElementById("frame");
-  const loading = document.getElementById("loading");
-  const dl = document.getElementById("download");
+  <!-- Viewer -->
+  <div id="viewer" role="dialog" aria-modal="true" aria-label="معاينة الملف">
+    <div class="vbar">
+      <button class="close" id="closeBtn" aria-label="إغلاق">✕ إغلاق</button>
+      <span class="vtitle" id="vtitle"></span>
+      <div class="dd">
+        <button id="ddBtn" aria-haspopup="true" aria-expanded="false">⬇ تحميل ▾</button>
+        <div class="menu" id="menu">
+          <a id="dlWord" download>📄 تحميل نسخة (Word)</a>
+          <button id="printBtn">🖨 طباعة / حفظ كـ PDF</button>
+        </div>
+      </div>
+    </div>
+    <div class="vscroll"><article class="paper" id="paper"></article></div>
+  </div>
 
-  buttons.forEach(b => b.addEventListener("click", () => {
-    buttons.forEach(x => x.classList.remove("active"));
-    b.classList.add("active");
-    const fileUrl = new URL(b.dataset.file, location.href).href;
-    document.getElementById("pTitle").textContent = b.dataset.title;
-    dl.href = fileUrl;
-    dl.setAttribute("download", b.dataset.file);
-    loading.style.display = "flex";
-    frame.onload = () => { loading.style.display = "none"; };
-    frame.src = "https://view.officeapps.live.com/op/embed.aspx?src=" + encodeURIComponent(fileUrl);
-    preview.style.display = "block";
-    preview.scrollIntoView({ behavior: "smooth", block: "start" });
-  }));
+  <template id="tpl-arb"><p class="doctitle"><strong><u>مقررات قسم الفيزياء</u></strong></p>
+
+<p class="course"><strong><u>PHYS101  فيزياء عامة (1) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: -</p>
+<p><strong>الأبعاد والوحدات الفيزيائية- المتجهات- استاتيكا وديناميكا الأجسام الصلبة- قوانين حفظ الطاقة والحركة- الجاذبية العامة- المرونة- سريان السوائل- اللزوجة- التوتر السطح- الأنابيب الشعرية- طرق مختلفة لتعيين التوتر السطح للسوائل- معادلة برنولى- معادلة بواسيل- قانون استوك- تعريف الحرارة- التغير الإدبياتيكى- الترمومترات- التمدد الحرارى- التغير الأيزوثرمى- السعة الحرارية- الحرارة النوعية- اسالة الغازات- الرطوبة- انتقال الحرارة بالحمل والتوصيل والاشعاع- الاشعاع وتطبيقاته- القوانين العامة للغازات.</strong></p>
+<p><strong>العملى:التجارب المستحدثة+ البندول البسيط- هوك.- والحرارة النوعية........</strong></p>
+<p><strong>المراجع:Humphery, H. Serway Loney ,S.</strong></p>
+
+<p class="course"><strong><u>PHYS102  فيزياء عامة (2) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS101</p>
+<p><strong>الشحنة الكهربائية- قانون كولوم- المجال الكهربى- خطوط القوى الكهربية- قانون جاوس- الجهد الكهربائى وفرق الجهد- العلاقة بين الجهد والمجال- المكثفات- السعة- العوازل- التيار الكهربائى والمقاومة الكهربية- توصيل المقاومات- الطاقة والقدرة- قاعدة كيرشوف- قنطرة هويتستون- القنطرة المترية- الجهد الكهربى ومقياس الجهد- المغناطيسية- قانون التربيع العكسى- عزم الازدواج- تأثير مجالين متعامدين- قاعدة لابلاس- شدة المجال المغناطيسى- اجهزة القياس- قوانين الحركة- الحركة الدورانية- الحركة الاهتزازية- الحركة التوافقية البسيطة- طبيعة الموجات- الموجات الصوتية- الموجات الضوئية- قوانين الانعكاس والانكسار- المرايا- العدسات- العين وعيوب الابصار- المنشور- الطيف- التداخل والحيود- نظرية هينجز الموجية.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+ تجارب متوافقة مع التخصص: القنطرة المترية- مغناطومتر الانحراف- تحقيق قوانين الانعكاس والانكسار.....................</strong></p>
+<p><strong>المراجع: Humphery, H. Serway Loney ,S.</strong></p>
+<p><strong>اساسيات البصريات لجينكز وهوايت</strong></p>
+
+<p class="course"><strong><u>PHYS141  ميكانيكا كلاسيكية (1) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: -</p>
+<p><strong>جبر المتجهات (الضرب الثلاثي المقياسي والمتجهي – تفاضل وتكامل المتجهات - المجالات المقياسية والمتجهة – العمليات المتجهة – أنواع المجالات) – القوى والحركة الخطية – الحركة في المستوى (المقذوفات – الحركة الدائرية – الإحداثيات القطبية) – نظرية الشغل والطاقة – أنواع القوى – كمية الحركة الخطية وكمية الحركة الزاوية وإنحفاظهما - الدفع وحركة الصاروخ –التصادم المرن وغير المرن.</strong></p>
+
+<p class="course"><strong><u>PHYS142  ميكانيكا كلاسيكية (2) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS141</p>
+<p><strong>الحركة في مجال قوة مركزية - الطاقة الكامنة للجسم – إنحفاظ الطاقة – معادلة المسار – القطع المخروطية – تطبيقات على قوة الجذب العام وقوانين كبلر- الجسم الجاسىء: العزوم والاتزان – الازدواج – مركز الثقل وحركته ونظرياته – الحركة الدورانية وعزم القصور الذاتي – نظرية المحاور المتوازنة- والمتعادلة – ديناميكا دوران الجسم الجاسىء – تطبيقات على البندول البسيط والمركب الفيزيائي وكيتر و الجيرويكوب – اللي في الأسلاك- مقاومة الحركة ( الاحتكاك الجاف – احتكاك الدوران والتدحرج – احتكاك الموائع –الحركة في وسط مقاوم.</strong></p>
+
+<p class="course"><u><strong>PHYS211  بصريات فيزيائية</strong> <strong>:</strong></u> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS102</p>
+<p><strong>الحركة الموجية- تراكب الامواج- محصلة حركتين موجيتين (لهما نفس السعة ونفس التردد ونفس الطور- مختلفتى الطور ولهما نفس السعة والتردد- مختلفتى السعة ولهما نفس التردد والطور- مختلفتى التردد والطور ولهما نفس السعة- مختلفتى السعة والطور ولهما نفس التردد)- تجربة ينج- العلاقة بين سعة واهتزازة الضوء المنعكس والمنكسر عند سطح مستو- التداخل فى الأغشية الرقيقة منتظمة السمك- الانعكاسات المتتالية فى الأغشية الرقيقة- التداخل فى الأغشية الرقيقة متغيرة السمك- حلقات نيوتن- مقاييس التداخل (مرآة لويد- مرآة فرنل المزدوجة- منشور فرنل- مقياس ميكلوسن- مقياس جامن- مقياس فايرى يروت)- حيود فرنل- الحيود عند الحرف المستقيم لحاجز معتم- نظرية فرنل- المناطق نصف الدورية على صدر الموجة المستوية- اللوح ذو المناطق- حيود فرانهوفر من فتحة مستطيلة ضيقة- الحيود من عدة فتحات- محزوز الحيود- شدة تحليل المحزوز- شدة التفريق- الاستقطاب- الامتصاص الانتقائى وإستقطاب الضوء- الاستقطاب بالانعكاس- الاستقطاب بالانكسار- الاستقطاب بالانكسار المزدوج- اتجاه الاهتزازة فى الشعاعين العادى وغير العادى- منشور نيكول- نظرية هينجز فى تقسيم ظاهرة الانكسار المزدوج- قياس الاستقطاب.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+ مثل محزوز الحيود – ميكلسون.......................</strong></p>
+<p><strong>المراجع :</strong></p>
+<p><strong>- Available text books at the library and digital library.</strong></p>
+<p><strong>- Soars, John and Liz Soars, Headway: Elementary level Oxford University 1996.</strong></p>
+
+<p class="course"><strong><u>PHYS212  ضوء متقدم :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS211</p>
+<p><strong>معادلات ماكسويل- معادلات ماكسويل وخصائص موجات الضوء- معادلة الحركة الموجية- طاقة الموجة ومتجهه بوينتج- الإنعكاس والإنكسار للموجات الكهرومغناطيسية- معادلات فرنل- قانون بروستر- الإستقطاب- الإستقطاب بالإنعكاس- الإستقطاب بالإنكسار- الإنكسار المزدوج وتفسير نظرية هينجز- طرق الإستقطاب الأخرى- الإستقطاب الدائرى والأهليجى للبلورات أحادية المحور- صدر الموجة للشعاع العادى والغير عادى- معادل بابينت- اللوح الربع موجى- ظاهرة فاراداى- ظاهرة كير- التشتت- التشتت العادى ومعادلة كوشى- التشتت الشاذ ومعادلة سليمير- الفاعلية الضوئية.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+ حلقات نيوتن – الاستقطاب .........................</strong></p>
+<p><strong>المراجع :</strong></p>
+<p><strong>- Available text books at the library and digital library.</strong></p>
+<p><strong>- Soars, John and Liz Soars, Headway: Elementary level Oxford University 1996.</strong></p>
+
+<p class="course"><strong><u>PHYS213  اهتزازات وموجات :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS102</p>
+<p><strong>الحركة التوافقية البسيطة – الذبذبات الحرة – الحركة التذبذبية تحت تأثير قوى مقاومة – الذبذبات القسرية و ظاهرة الرنين – الصيغة التفاضلية لمعادلة الموجة – سرعة الأمواج في الخيوط و القضبان و الغازات – سرعة مجموعة موجان – الموجات الموقوفة – الإعتبارات الأولية لحيود الأشعة السينية و الإلكترونات من البلورات - الأمواج في أكثر من بعد واحد – الأمواج المائية – الأمواج الراسخة.</strong></p>
+<p><strong>العملى : التجارب المستحدثة+ ملد- البندول المركب..............</strong></p>
+<p><strong>المراجع: اساسيات الفيزياء الكلاسيكية والمعاصرة (د. رأفت كامل واصف)</strong></p>
+
+<p class="course"><strong><u>PHYS221  فيزياء فلكية وأرصاد جوية :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS101</p>
+<p><strong>الضوء- المسافات للنجوم- الشكل العام لتطور النجوم- خصائص النجوم(اللمعان- الكتلة)- المفاهيم الفوتومترية- انماط الاشعاع- درجات الحرارة- اطياف النجوم- المجرات- الخواص الأساسية للنظام الشمسى- اجواء الكواكب- دراسة تفصيلية للغلاف الجوى لكوكب الأرض.</strong></p>
+<p><strong>العملى : التجارب المستحدثة+ تعيين معامل التوصيل الحرارى-</strong></p>
+<p><strong>المراجع: آفاق علم الفلك(أ.د.محمد احمد سليمان)</strong></p>
+<p><strong>علم الفلك العام (د.مرفت السيد عوض-د. مصطفى كمال محمود)</strong></p>
+
+<p class="course"><strong><u>PHYS222  ديناميكا حرارية :</u> </strong>(2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS101</p>
+<p><strong>أساسيات الديناميكا الحرارية- النظرية الحركية البسيطة للغازات- معادلة الحالة للغاز المثالى- معادلة فاندرفال للغاز الحقيقى- درجة بويل للغاز الحقيقى- معادلة أندروز- تغيير الحالة- الشغل- الطاقة الداخلية- الإنثالبى- السعة الحرارية- تفاضل دالة الحالة- معاملى التمدد الحجمى والإنضغاط- القانون الأول للديناميكا الحرارية- تطبيقات على القانون الأول- معادلة الطاقة- القانون الثانى للديناميكا الحرارية- تطبيقات على القانون الثانى- الأنتروبيا- معادلة ماكسويل- المعادلة الثانية للطاقة- عملية جول- طومسون وتأثير جول- كلفن- العمليات العكسية والغير عكسية- الجهد الديناميكى الحرارى- التغير الطورى- القانون الثالث للديناميكا الحرارية- تطبيقات على القانون الثالث- إنتقال الحرارة فى الأجسام الصلبة- الأجسام السوداء وقانون إستيفان- دوال التوزيع- توزيع سرعة الجزئ- دوال توزيع الطاقة- دوال الإحتمال.</strong></p>
+<p><strong>عملى</strong>: <strong>التجارب المستحدثة+ المكافىء الميكانيكى الحرارى</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Heat and Thermodynamics , Zemansky&amp;Dittman, McGrew-Hill.</strong></p>
+<p><strong>- Physics:Principle with applications d.c Gancoli,U.S.A.</strong></p>
+
+<p class="course"><strong><u>PHYS223  علم البلورات و الأشعة السينية :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS231</p>
+<p><strong>أنواع الجوامد - أنواع الروابط الذرية - طرق تنمية البلورات (طريقة بريد جمان -طريقة زوخر ألسكي - طريقة الصهر الجزئي) - التركيب البلوري - شبكات برافيس -قرائن ميلر- العيوب في البلورات - الأستطاره و الحيود - قانون براغ - طرق الحيود التجريبية (طريقة لاو - طريقة المسحوق - طريقة البلوره الدواره) - حيود الإلكترونيات و النيوترونات - ديناميكا الشبيكة و الفوتونات -ذبذبات الشبيكة - الخواص الحرارية للمواد العازلة.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+ التداخل والحيود.............................</strong></p>
+<p><strong>المراجع: اساسيات الفيزياء الكلاسيكية والمعاصرة (د. رأفت كامل واصف)</strong></p>
+
+<p class="course"><strong><u>PHYS231  فيزياء ذرية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS101</p>
+<p><strong>نظرية يوهر لذرة الهيدروجين - حركة النواة في ذرة الهيدروجين - المدارات الإهليليجية لذرة الهيدروجين - المجموعات الطيفية البصرية - النموذج المتجهه للذرة - قاعدة بولي للإستبعاد - الرموز الطيفية - طيف ذرة الصوديم - تأثير زيمان العادي و الشاذ - معامل لنديه - تجربة شتيرن و جيرلاخ - الطيف الذري للذرات ذات الإلكترونين - طيف الليزر - طيف أشعة إكس.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+القوة الرابعة للاشعاع..............................</strong></p>
+<p><strong>المراجع: Available text books at the library and digital library</strong></p>
+<p><strong>اساسيات الفيزياء-بوش</strong></p>
+
+<p class="course"><strong><u>PHYS241  كهرومغناطيسية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS102</p>
+<p><strong>المتجهات- حساب المتجهات التفاضلى والتكاملى- المحاور شبه المنحنية- الكهروستاتيكية- المجال الكهروستاتيكى وخصائصه- قوة كولوم- شدة المجال الكهربى- الجهد الكهربى- الشغل والطاقة فى المجال الكهروستاتيكى- معادلة لابلاس- حل معادلة لابلاس- المجال الكهربى- ومعادلة خطوط القوى- معادلة السطوح المتساوية الجهد- الاستقطاب الكهربى وتطبيقاته- تطبيقات ثنائى القطب وعزمه- رباعى القطب- المجال الكهروستاتيكى فى المواد- التيار وشدته والموصلات- قانون أوم- معادلة الاستمرارية- المجال المغناطيسى- قانون أمبير- االقوة الدافعة التأثيرية وقانون فارادى- معادلة القوة للورانس- حركة موصل فى مجال مغناطيسى- معادلة ماكسويل- تأثير هال- الخواص المغناطيسية للمواد البارامغناطيسية والدايامغناطيسية- قابلية التمغنط- دراسة التمغنط- دراسة تمغنط المواد- منحنى التخلف- الدوائر المغناطيسية.</strong></p>
+<p><strong>العملى: التجارب المستحدثة</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Engineering electromagnetic ,Mcgraw-Hill ,William H.Hayt.</strong></p>
+<p><strong>- Fundamental of physicsby David Halliday and Robert Resnek.</strong></p>
+
+<p class="course"><strong><u>PHYS242  فيزياء حسابية (1) :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS102 </p>
+<p><strong>مقدمة - اكتشاف الأخطاء - تصحيح الأخطاء - حل المعادلات الجبرية الخطية ومعكوس المصفوفة – المتجهات - حاصل ضرب المتجهات- التدرج والتباعد - طريقة جاوس جوردان فى حل المعادلات الخطية - معكوس المصفوفة بطريقة جاوس جوردان - التكاملات الخطية وعدم الاعتماد على المسار- ستوكس- التكامل العددى - سلسلة فورير وتطبيقاتها - تكامل وتفاضل سلسلة فورير- حل بعض المشاكل باستخدام سلسة فورير.</strong></p>
+<p><strong>العملى: برامج على الكمبيوتر متوافقة مع التخصص</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Computer methods for science and engineering. Robert L.Lafara, International text bookcomp.lim.(1973).</strong></p>
+<p><strong>- Mathematical methods for physicists, George Arfken (1970).</strong></p>
+
+<p class="course"><strong><u>PHYS243  فيزياء حديثة :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS241</p>
+<p><strong>الموجات والجسيمات- منشأ ميكانيكا الكم- نظرية بوهر للتركيب الذرى لذرة الهيدروجين- حل شرودنجر لذرة الهيروجين- الاعداد الكمية- كمية التحرك الزاوى لذرة أحادية الإلكترون- النظرية النسبية- تجربة ميكلسون ومورلى- نسبية نيوتن- تحويلات اينشتين ولورنتز- نسبية الطول والزمن والسرعة - نسبية العلاقة بين الطاقة والكتلة- الأشعة السينية- انتاجها وقياس شدتها- الاتصال النسبى بين كل من المجال الكهربى والمجال المغناطيسى.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+ القوة الرابعة للاشعاع.....</strong></p>
+<p><strong>المراجع: - Concept of modern physics(Arthur Beiser).</strong></p>
+<p><strong>- Modern physics for scientists and engineers (Stephen T. Thrnton).</strong></p>
+
+<p class="course"><strong><u>PHYS251 مبادئ دوائر إلكترونية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS102</p>
+<p><strong>دوائر التيار المستمر: دوائر التوالى والتوازى- قوانين كيرشوف- أنظمة تحليل الدوائر (الطريقة العامة- تحليل العقدة- تحويل مصادر الجهد المكافاة لتحليل العقدة- نظرية التراكيب- استيفنن ونورتن)- دوائر التيار المتردد: الأشكال الموجية- القيمة الفعالة- الجهد والتيار فى C,L,R- القدرة وتصحيح عامل القدرة- الأعداد المركبة- المعاوقة المركبة- التوصيل على التوالى والتوازى فى دوائر التيار المتردد- دوائر الرنين- الشبكات الرباعية: معاملات الممانعة (Z)- المعاملات المختلطة (h)- معاملات السماحية (y)- الدوائر المكافئة- دراسة المكامل والمفاضل- مرشحات الترددات المنخفضة والعالية- الإستجابة الترددية- راسم الذبذبات.</strong></p>
+<p><strong>العملى: التجارب المستحدثة + دوائر التوالى والتوازى.........................</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>"Applied electricity for engineers" By: Boris Kuznetsov, Mir Publishers-Moscow.</strong></p>
+<p class="course"><strong><u>PHYS311 أطياف ذرية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS231 </p>
+<p><strong>طيف الإمتصاص و الإنبعاث - مفهوم شدة الخط الطيفي - وصف اتساع و شكل الخط الطيفي - دراسة العوامل المؤثرة علي اتساع الخط الطيفي - قوة التشتت وقوة الفصل - قوة التشتت والإنحراف لكل من (المنشور والمحزوز) - الأنواع المختلفة لأجهزة تسجيل الطيف - الطرق المختلفة للأستثارة - التحليل النوعي والكمي الطيفي للعناصر - (المنحنى العياري ومنحنى الشغل).</strong></p>
+<p><strong>العملى: التجارب المستحدثة+محزوز الحيود...............................</strong></p>
+<p><strong>المراجع: An introduction to atomic and nuclear physics , H. Semat</strong></p>
+
+<p class="course"><strong><u>PHYS312  بصريات إلكترونية :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS211</p>
+<p><strong>مقدمة في البصريات الإلكترونية-حركة الإلكترونات في مجال كهروستاتيكي منتظم و مجال مغناطيسي- أنواع وأشكال العدسات الإلكترونية-التشابة الفيزيائي للضوء والعدسات الإلكترونية- أنواع الإلكترون ميكروسكوب وتطبيقاتها.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+</strong></p>
+<p><strong>المراجع: Principle of electron optics Hawkes PW,Kasper (1996)</strong></p>
+
+<p class="course"><strong><u>PHYS321  فيزياء الجوامد (1) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS231</p>
+<p><strong>مبادئ التركيب البلوري- الشبكة البلورية في بعد واحد- الشبكة البلورية في بعدين- الشبكة البلورية في ثلاثة أبعاد- الخلية الأولية ووحدة الخلية- عناصر التماثل البلوري- النظم البلورية- شبكة براف- احداثيات ميلر- امثلة لبعض التركيبات البلورية.</strong></p>
+<p><strong>تعيين التركيب البلورى باستخدام حيود الاشعة السينية-قانون براج-حيود الالكترونات-حيود النيوترونات الطرق التجريبية للكشف عن التركيب البلورى (طريقة لاوى -طريقة المسحوق- طريقة براج طريقة البلوره الدوارن)- الترابط البلورى-بلورات الغازات الخاملة- قوة فان درفال- طاقة التنافر- طاقة التجاذب-البلورات الأيونية وعلاقة مادبلنج -البلورات التساهمية- الرابطة الفلزية- الرابطة الهيدروجينية - الخواص الحرارية للجوامد- السعة الحرارية- النظرية الكلاسيكية-نظرية اينشتين- نموذج ديباى- السعة الحرارية لالكترونات التوصيل فى الفلزات-الفوتونات–التوصيل الحراري في الجوامد- التمدد الحراري- نظرية الالكترونات الحرة- النظرية الكلاسيكية لدرورولورنز- النظرية الكمية لسمرفلد- الموصيلية الكهربية وقانون اوم للفلزات- قانون فيدمان وفرانز- كثافة المستويات فى بعد واحد-كثافة المستويات في الابعاد الثلاثة وطاقة مستوى فيرمى- احصاءفيرمى وديراك–السعة الحرارية لغاز فيرمي الحر- تاثير احصاء فيرمى وديراك على الموصيلية الكهربية-الأنبعاث الثرموأيوني- التأثير الفوتوكهربي في الفلزات- العيوب البلورية- العيوب النقطية (شوتكى- فرنكل- الشوائب) - الانتشار Colour Centers العيوب الخطية- الأنزلاق البلوري. </strong></p>
+<p><strong>العملى: التجارب المستحدثة+ الخلية الكهروضوئية..................</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Elementary solid state physics ,Omar</strong></p>
+<p><strong>- Solid state physics , A.J. Dekker</strong></p>
+
+<p class="course"><strong><u>PHYS322  فوق صوتيات :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS213</p>
+<p><strong>اساسيات الموجات فوق الصوتية - معالة الموجة الصوتية -المعاملات الصوتية -المعاوقة الصوتية -الشدة الصوتية -القدرة الصوتية- الأنعكاس والنفاذية للموجات فوق الصوتية الساقطة على السطح الفاصل بين وسطين عندما يكون (السقوط عمودى - السقوط مائل) -الأنقلاب النمطى - فقد (امتصاص) الموجات فوق الصوتية - محولات الطاقة فوق الصوتية- محولات الطاقة الكهروضغطية - محولات الطاقة المبنية على تغير ابعاد المادة الغيرمغناطسية- اختبار محول الطاقة - أهداب الشعاع الفوق صوتى- تكوين الفقاعات الهوائية بالموجات فوق الصوتية- العوامل التى يتوقف عليها شدة الفقاعات المتكونة بالموجات فوق الصوتية -تطبيقات على استخدامات الموجات فوق الصوتية ذات الشدة العالية(التنظيف -الطلاء الكهربى - الاستحلاب والتوزيع المتجانس -انتاج الايروسول-لحام المعادن- صقل المعادن- التفاعلات الكيميائية) - تطبيقات على استخدامات الموجات فوق الصوتية ذات الشدة المنخفضة(تعيين ثوابت المرونة- تعيين سرعة الموائع بطرق مختلفة- قياسات اللزوجة).</strong></p>
+<p><strong>العملى: التجارب المستحدثةمتوافقة مع التخصص</strong></p>
+<p><strong>المراجع:Ultrasonics by Benson Carlin. </strong></p>
+
+<p class="course"><strong><u>PHYS323  فيزياء البيئة :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS101 </p>
+<p><strong>الأنتقال الحراري- الأشعاعات الحرارية- تكنولوجيا الطاقةالشمسية- إمتصاص الجزئ للموجات الكهرومغناطسية- البيئة الحرارية للكرة الأرضية- ظاهرة الأحتباس الحراري-تأثيرالتفجيرات النووية-المياة- بخار الماء والرطوبة- التلوث البيئي- طبقة الأوزون-التلوث الهوائي والضوئي والضوضائي- تاثيرالأشعاغات المختلفة على الأنسان- الأمان الأشعاعي.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+Gamma spectrum......................</strong></p>
+<p><strong>المراجع: Principle of Environmental physics by,Moneteith,J.L and Unsworth M.</strong></p>
+
+<p class="course"><strong><u>PHYS324  فيزياء جوامد (2) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS321</p>
+<p><strong>نظرية الشرائط فى الجوامد- نظرية المناطق فى الجوامد - مستويات طاقة الالكترونات-نموذج إعتماد طاقة الإلكترونى على المتجه الموجى-نموذج بلوخ-نموذج كرونج ونى-كتلة الإلكترون الفعاله فى البلوره والسرعة والعجلة-مفهوم مناطق بريليون-شغل نطاقات الطاقة بالإلكترونات- تقسيم المواد الصلبة إلي مواد موصلة وعازلة وشبة موصلة- المواد شبه الموصله-اشباه الموصلات ذاتية التوصيل والغير ذاتية التوصيل - مستويات الطاقة لإشباه الموصلات ذاتية وغير ذاتية التوصيل- مستوى طاقة فيرمى- تركيز حاملات الشحنة وحركتها والموصلية الكهربية لإشباه الموصلات ذاتية وغير ذاتية التوصيل -تأثير الحرارة على أشباه الموصلات- معامل هول- ظاهرة التلامس (بين شريحتين من فلزين مختلفين، بين فلز و شبه موصل، وصلة ثنائية شبه موصله، صمام ثنائى معدل للتيار، صمام زنر الثنائى، الصمام الثنائى ذوالنفق، الترانستور).</strong></p>
+<p><strong>العملى: التجارب المستحدثة+ جهد التلامس......................</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Elementary solid state physics ,Omar.</strong></p>
+<p><strong>- Solid state physics, A.J. Dekker.</strong></p>
+<p><strong>- Introduction to solid state physics , Charles Kittel.</strong></p>
+<p class="course"><strong><u>PHYS325  فيزياء جوامد :</u></strong> (3س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS231 </p>
+<p><strong>مبادئ التركيب البلورى- الشبكة البلورية فى بعد واحد- الشبكة البلورية فى بعدين- الشبكة البلورية فى ثلاث أبعاد- الخلية الاولية ووحدة الخلية- أمثلة لبعض التركيبات البلورية- تعيين التركيب البلورى باستخدام حيود الأشعة السينية- قانون براج- حيود الالكترونات- حيود النيوترونات- الطرق التجريبية للكشف عن التركيب البلورى (طريق لاوى-طريقة المسحوق-طريقة براج طريقة البلوره الدوارن)- الترابط البلورى (التساهمى- الأيونى- الفلزية- الهيدروجينية- فان درفال)- نظرية الالكترون الحر- النظرية الكلاسيكية لدريد ولورنز- النظرية الكمية لسمرفيلد- الموصلية الكهربية وقانون أوم - نظرية الشرائط فى الجوامد- مستويات طاقة الالكترونات-نموذج إعتماد طاقة الإلكترونى على المتجه الموجى- نموذج بلوخ-نموذج كرونج ونى- كتلة الإلكترون الفعاله فى البلوره والسرعة والعجلة- تقسيم المواد الصلبة إلى مواد موصلة وعازلة وشبه موصلة- المواد شبه الموصلة- اشباه الموصلات ذاتية التوصيل والغير ذاتية التوصيل- مستويات الطاقة لإشباه الموصلات ذاتية وغير ذاتية التوصيل- مستوى طاقة فيرمى- تركيز حاملات الشحنة وحركتها والموصلية الكهربية لإشباه الموصلات ذاتية وغير ذاتية التوصيل- تأثير الحرارة على أشباه الموصلات- معامل هول.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+ جهد التلامس......................</strong></p>
+<p><strong>المراجع:</strong></p>
+<blockquote>
+<p><strong>- Elementary solid state physics ,Omar.</strong></p>
+<p><strong>- Solid state physics , A.J. Dekker.</strong></p>
+<p><strong>- Introduction to solid state physics , Charles Kittel.</strong></p>
+</blockquote>
+
+<p class="course"><strong><u>PHYS331  فيزياء نووية (1) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS231</p>
+<p><strong>الخصائص النووية الأساسية - طاقة الترابط - والانفصال الاشعاعي الطبيعي والاشعاعي الصناعي، إنتاج النظائر المشعة بإستخدام القصف النووي - عرض حالات الإضمحلال المتسلسل - أنواع الأتزان المختلفة، قانون إضمحلال النشاط الاشعاعي - عرض حالات الإضمحلال - إنحلال جاما - التحولات الداخلية - إنحلال الفا - انحلال بيتا - فروض النيوترينو مصائد الكترونات، إنحلال بيتا العكسي - تفاعل الأشعة الجامية مع المواد- الكواشف النووية.</strong></p>
+<p><strong>العملى: التجارب المستحدثة + معامل الامتصاص ...............</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Nuclear physics by I. Kaplan.</strong></p>
+<p><strong>- Nuclear physics, an introduction by SB Patel.</strong></p>
+
+<p class="course"><strong><u>PHYS332  المعجلات :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS331</p>
+<p><strong>جهاز الكوكروفت والتون – المولد الالكتروستاتيكى او الفان دى جراف – السيكلوترون – السينكروسيكلوترون – معجلات الالكترونات – البيتاترون والالكترون سينكروترون –سينكروترون البروتن – المعجلات الخطية – المعجلات المترددة – المعجلات التصادمية.</strong></p>
+<p><strong>العملى: التجارب المستحدثة + معامل الامتصاص ................</strong></p>
+<p><strong>المراجع: Nuclear physics and nuclear reactor by A.Klimov</strong></p>
+
+<p class="course"><strong><u>PHYS333  فيزياء البلازما :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS231</p>
+<p><strong>تعريف البلازما- درجة حرارة البلازما وطاقة حركة الجسيمات-حركة جسيم أحادي الشحنة في مجال كهرومغناطيسي- إزاحة جسيم في مجال مغناطيسي(محدب-مقعر- متذبذب) -جسيم مشحون في مجال كهربي- مقدمة للتفاعلات النووية الحرارية- توكاماك- ستيلاريتور.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Introduction to plasma physics and controlled fusion by F.Chen.</strong></p>
+<p><strong>- Introduction to plasma theory by D.R. Nichlson.</strong></p>
+
+<p class="course"><strong><u>PHYS334  أطياف جاما :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS331</p>
+<p><strong>المخططات التفصيلية لإضمحلال الأنوية المشعة -القواعد الإختبارية للإنتقالات الجامية -الكواشف الوميضية -كواشف أشباه الموصلات -مكونات المطياف الجامي المفرد ومعيارته- قوة التحليل -أنواع الأطياف.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+طيف ……….</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>-spectroscopy by K.Sigban.</strong></p>
+<p><strong>- T.Sovlfanidis N., "Measurements and detection of radiation", 1983.</strong></p>
+
+<p class="course"><strong><u>PHYS341  ميكانيكا الكم (1) :</u> </strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS241</p>
+<p><strong>نبذة تاريخية (النظريات والتجارب) -النظرية الحديثة للكم -فروض نظرية الكم- المؤثرات- مؤثرات هيرمتين- اشتقاق معادلة شرودنجر فى بعد واحد وفى ثلاثة أبعاد- خواص معادلة شرودنجر- كمية الحركة الزاوية المدارية والعلاقات التبادلية- تطبيقات على ميكانيكا الكم (جسيم فى جهد لانهائى (بئر لانهائى)- جسيم فى جهد محدود (البئر الكمى)- تشتت جسيم من حاجز جهد- تشتت جسيم من حاجز جهد محدود).</strong></p>
+<p><strong>العملى:تدريبات على المقرر</strong></p>
+<p><strong>المراجع :</strong></p>
+<p><strong>- Quantum Mechanics by Hisberg and Remick.</strong></p>
+<p><strong>- Modern physics and quantum mechnics by Anderson.</strong></p>
+
+<p class="course"><strong><u>PHYS342  فيزياء إحصائية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS242</p>
+<p><strong>مستويات الطاقة الأساسية والفرعية- الحالات الميكروسكوبية والماكروسكوبية للمادة- إحتمالات الديناميكا الحرراية (إحتمالات ماكسويل بولتزمان- إحتمالات فيرمى ديراك- إحتمالات بوسى أينشتين)- إحصائية فيرمى ديراك- التفسير الإحصائى للإنتروبيا- دالة التجزيئ- إستخدام دالة التجزيئ لحساب ثوابت عامة للمواد- تطبيقات للمادة فى صورها المختلفة (غاز أحادى الذرة- ثنائى الذرة- مواد صلبة).</strong></p>
+<p><strong>العملى: تدريبات</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Statistical physics by F.Reif.</strong></p>
+<p><strong>- Thermodynamics,and Statistical mechanics by Addison-wesly (1972).</strong></p>
+
+
+<p class="course"><strong><u>PHYS343  ديناميكا كهربية :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS241</p>
+<p><strong>معادلات ماكسويل للموجات الكهرومغناطيسية- معادلات ماكسويل للفراغ الحر- حل معادلات ماكسويل بدلالة الجهد- تحويل جيج- شرط لورانتز ومعادلات الجهد- قانون حفظ الطاقة فى المجال الكهرومغناطيسى (نظرية بونتنج)- الحل العام لمعادلات ماكسويل فى االفراغ- المعادلة العامة للموجة- الموجات الكهرومغناطيسية فى الأوساط الغير موصلة- الإستقطاب- شروط حد لوسطين متجاورين- قانون الإنعكاس والإنكسار فى المجال الكهرومغناطيسى- الموجات الكهرومغناطيسية فى الأوساط الموصلة- الموجات المنقادة والمجوفة- الصورة النسبية للكهروديناميكية.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+تدريبات</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Introduction to electrodynamics by David J.</strong></p>
+
+
+<p class="course"><strong><u>PHYS351 الكترونيات (1) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS251</p>
+<p><strong>دوائر التيار المتردد- الأشكال الموجية- القيمة الفعالة- الجهد والتيار فى C,L,R- القدرة وتصحيح عامل القدرة- الأعداد المركبة- التوصيل على التوالى والتوازى فى دوائر التيار المتردد- دوائر الرنين- الشبكات الرباعية :معاملات الممانعة (Z)- المعاملات المختلطة (H)- معاملات السماحية (Y)- الدوائر المكافئة :دوائر التفاضل والتكامل- مرشحات الترددات المنخفضة والعالية- الاستجابة الترددية- راسم الذبذبات- نظرية نطاقات الطاقة: أشباه الموصلات النوع p,n- مستوى طاقة فيرمى- مستويات الطاقة القابلة والمانحة- حوامل التيار والعمر الزمنى لها- التوصيل الكهربى فى أشباه الموصلات.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+دوائر</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Integrated electronics: analog and digital circuits and systems" By: Jacob Millman, Mc Graw-Hill Inc. Japan.</strong></p>
+<p><strong>- "Applied electricity for engineers" By: Boris Kuznetsov, Mir Publishers-Moscow.</strong></p>
+<p class="course"><strong><u>PHYS352  الكترونيات (2) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS351 </p>
+<p><strong>الوصلة الثنائيه-الإنحياز الأمامي و العكسى -منحنى الخواص-دايود زنير-الدايود النفقى-الدايود الضوئي و الباعث للضوء -التقويم نصف الموجى الكامل-المرشحات- دراسة الترانزيستور كشبكة رباعية الأطراف للإشارات الصغيرة- الدائرة المكافئة للترانزيستور ثنائى القطبية- بعض التطبيقات للترانزيستور BJT- إستخدام الترانزيستور كمكبر جهد ومكبر تيار- ترانزيستور ثأثير المجال : مبدأ التشغيل- معاملات الترانزيستور- منحنيات الخواص- التغذية الخلفية- مولدات الذبذبة- مكبر العمليات- بعض خواصه وتطبيقاته.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+دوائر</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Integrated electronics: analog and digital circuits and systems" By: Jacob Millman, Mc Graw-Hill Inc. Japan.</strong></p>
+<p class="course"><strong><u>PHYS353  الكترونيات :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS251</p>
+<p><strong>الوصلة الثنائيه-الإنحياز الأمامي و العكسى - منحنى الخواص- دايود زنير-الدايود النفقى-الدايود الضوئي و الباعث للضوء - التقويم نصف الموجى الكامل-المرشحات- دراسة الترانزيستور كشبكة رباعية الأطراف للإشارات الصغيرة- الدائرة المكافئة للترانزيستور ثنائى القطبية- بعض التطبيقات للترانزيستور BJT- إستخدام الترانزيستور كمكبر جهد ومكبر تيار - معاملات الترانزيستور- منحنيات الخواص- التغذية الخلفية- مولدات الذبذبة- مكبر العمليات- بعض خواصه وتطبيقاته.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+دوائر</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Integrated electronics: analog and digital circuits and systems" By: Jacob Millman, Mc Graw-Hill Inc. Japan.</strong></p>
+<p class="course"><strong><u>PHYS411  فيزياء الليزر وتطبيقاته </u>:</strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS311</p>
+<p><strong>اساسيات علم الليزر - الإنبعاث المستحث والتلقائي - معادلات اينشتين - التكبير في الوسط لنمو شعاع الليزر - نظرية الفجوة الضوئية الرنانة -الطرق المختلفة لإحداث إسكان عكسي- مستويات الطاقة للأنظمة الثنائية والثلاثية والرباعية لإحداث إسكان عكسي -الأنواع المختلفة لليزر (مثل الليزر الغازي - ليزر الجوامد -الليزرات ذات القوة العالية) -خصائص شعاع الليزر - أنواع الفقد في أشعة الليزر- الاتساق – التغذية العكسية – تطبيقات الليزر مثل (تطبيقات صناعية و حربية و يومية و علمية و تطبيقات خاصة).</strong></p>
+<p><strong>العملى: التجارب المستحدثة+</strong></p>
+<p><strong>المراجع: Laser fundamentals by W.T. Silfvast, Campridge</strong></p>
+
+
+<p class="course"><strong><u>PHYS412  أطياف جزيئية :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS311</p>
+<p><strong>الأشعة الكهرومغناطيسية – تفاعل الأشعة الكهرومغناطيسية مع الذرات و الجزيئات – أطياف الميكروويف الدورانية – دوران الجزيئات – الأطياف الدورانية للجزيئات ثنائية الذرة – الجزيئات متعددة الذرة – أجهزة قياس طيف الميكروويف - أطياف الأشعة تحت الحمراء – إهتزاز الجزيئات ثنائية الذرة – الأطياف الإهتزازية – الدورانية – أجهزة قياس أطياف الأشعة تحت الحمراء.</strong></p>
+<p><strong>العملى: التجارب المستحدثة</strong></p>
+<p><strong>المراجع:</strong></p>
+<ul>
+<li><p><strong>"Fundamentals of Molecular Spectrosopy", C.N Banwell, MC Graw-Hill Book Company (uk) Limited.</strong></p></li>
+<li><p><strong>"Introduction to Molecular Spectrosopy", G.M. Barraw, MC Graw-Hill international Book Company.</strong></p></li>
+</ul>
+
+
+
+<p class="course"><strong><u>PHYS421  علوم المواد (1) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS324 or PHYS325</p>
+<p><strong>الخواص الميكانيكية: الإجهاد- الإنفعال- أنواع الإجهادات- قانون هوك ومعاملات المرونة (الطولى- الحجمى- العرضى)- أنواع الإجهادات الميكانيكية- إختبار الشد- منحنى الإجهاد والإنفعال للمواد المعدنية- منحنى الإجهاد والإنفعال للمواد قليلة الكربون- إختبار الزحف- العوامل المؤثرة على مقاومة الزحف.</strong></p>
+<p><strong>الخواص الضوئية : الضوء كموجات كهرومغناطيسية وكفوتونات- الضوء كموجات كهرومغناطيسية (شدة الاستضاءة- معامل الإنكسار- ثابت العزل- الموصلية الضوئية- معامل الإمتصاص- الإنعكاسية- النفاذية)- حساب الثوابت الضوئية من النفاذية والإنعكاسية- عمليات امتصاص الضوء- النتقال عند حافة المتصاص الرئيسية ( الانتقالات المسموحة المباشرة- الانتقالات الممنوعة المباشرة- الانتقالات المسموحة الغير مباشرة- الانتقالات الممنوعة الغير مباشرة)- الإمتصاص بالاكزيستون- الإمتصاص بالشوائب- الإمتصاص بحاملات الشحنة الحرة - الخواص االحرارية: حركية الشبيكة-الفوتونات-التوصيل الحراري في العوازل-الخواص الحرارية للجوامد-الأنتقال الحراري بالطرق المختلفة-التوصيل الحراري بالحالة الثابتة-التوصيل الحراري اللحظي-معامل الأنتشار الحراري-معامل التمدد الحراري في الجوامد.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+ تعين نسبة الشحنة الى كتلة الاليكترون......................</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Material science and engineering, an introduction by WilliamD, Callisters</strong></p>
+
+<p class="course"><strong><u>PHYS422 فيزياء الرنين المغناطيسي :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS324 or PHYS325</p>
+<p><strong>ظاهرة الرنين-الغزل الإلكتروني والغزل المغناطيسي-طافة الإلكترون الحر في مجال مغناطيسي-طيف الرنين الإلكتروني-هاملتونين ودالة الموجة-معامل هاملتونين-الأطياف متناهية الدقة لزيمان-التصادمات المغزليه في المجال البلوري-الأزدواج المغزلي المداري-تأثيرات النووية لزيمان-نظرية الأشكال والعلاقات الخطية-تصوير حركة الإلكترونات المغزلية- طيف الرنين المغناطيسي للنيوترونات-اساس الطيف-الإزاحة الكميائية-الميكانيكية الفيزيائية للإزاحة الكميائية لطيف NMR -تحليل النظام المغزلي–عرض الخطوط فيNMRللنيوترونات- الضوضاء المغناطيسي-دوال بلوخ.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Electron spin resonance theory &amp;applications by N.M.A. theraton (1973)</strong></p>
+
+
+
+<p class="course"><strong><u>PHYS423  طاقة شمسية :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS321 or PHYS325</p>
+<p><strong>مصادر الطاقة المتعددة-الشمس كمصدر للطاقة-طيف الشمس-مبادىء أشباه الموصلات-الخواص الضوئية والكهروضوئية لأشباه الموصلات-التأثير الفتوستاتيكي، المواد ذات المقاومة المنخفضة، Dember Photo effect، الموصلية الضوئية، Photovoltaic effect في الوصلة الثنائية والوصلة المتعددة من مواد شبه موصلة (السعة، خصائص،Voc،Jsc  ، والكفاءة)، وصلة ثنائية (معدن -شبه موصل)، تحويل الطاقة الشمسية إلى الطاقة الكهربية عن طريق (photovoltaic effect  وامثلة لتصنيع الخلايا الشمسية من وصلة ثنائية ووصلة متعددة، الانبعاث الضوئي، photo magnetic، photo galvanic) التحويل غير المباشر للطاقة الشمسية إلى طاقة كهربية من خلال الحرارة أو التفاعلات الكيمائية (التمثيل الضوئي) كمراحل انتقالية.</strong></p>
+<p><strong>العملى: التجارب المستحدثة</strong></p>
+<p><strong>المراجع: Solar energy conversion by Richard C.</strong></p>
+
+
+
+
+
+
+<p class="course"><strong><u>PHYS424  نانو تكنولوجي :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS321 or PHYS325</p>
+<p><strong>مقدمة تاريخية لثورة النانو – الخواص الفيزيائية و الكيماوية للمواد التكنولوجية المتناهية الصغر – طرق تحضير المواد النانونية- إستخدام الأشعة السينية و الميكرسكوب الإلكتروني وطيف رامان للتعرف علي الخواص الفيزيائية للمواد النانونية– تطبيقات المواد التكنولوجية المتناهية الصغر في أشباه المواصلات و البلمرات و انابيب النانو - فيزياء المواد.</strong></p>
+<p><strong>العملى: التجارب المستحدثة</strong></p>
+
+<p class="course"><u><strong>PHYS425  فيزياء المواد</strong> <strong>الأمورفية :</strong></u> (2س.م)</p>
+<p>متطلبات المقرر: PHYS324 or PHYS325 </p>
+<p><strong>البوليمرات واللدائن- طرق تحضير البوليمر-أمثلة لمواد بوليمرية-الخزف-ثابت العزل لمواد بوليمرية مختلفة-خواص الخزف (البيزوكهربية-الفيروكهربية-الفيرومغناطيسية-وفائقة التوصيل) -الفرايت-البلورات السائلة-الألكتريت-الألياف البصرية-الألياف الزجاجية-السيلكون وأشباه الموصلات الأمورفية-المواد المؤلفة.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+</strong></p>
+<p><strong>المراجع: Amorphous semiconductor </strong></p>
+<p class="course"><strong><u>PHYS426  علوم المواد (2) :</u> </strong>(2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS421</p>
+<p><strong>الخواص الكهربية للمواد : حالة إتزان الغاز الإلكتروني في المواد الموصلة في حالة عدم وجود مجال كهربي– انحراف الإلكترون في وجود مجال كهربي-زمن الإسترخاء ومتوسط المسار الحر -التوصيل النوعي في الموصلات-التوصيل الكهربي في حالة الغاز المثالي والغير مثالي –قانون ويدمان فرتز لورنس -أعتماد الحرارة على انتقال الحاملات –التوصيل الكهربي في المعادن النقية والسبائك وأشباه الموصلات النقية والمطعمة- الخواص المغناطسية للمواد: أصل الظواهر المغناطسية-تصنيف المواد المغناطسية-العزوم المغناطسية للإلكترونات-النظرية الكلاسيكية للبارامغناطسية-المواد البارا مغناطسية-منحنى التمغنط -النطاقات المغناطسية-الطاقة المتبادلة-الفيرومغناطسية المتضادة - الخواص الفوق موصلية للمواد :اكتشاف فوق موصلية-المجال المغناطيسى الحرج-تأثير ميزنز-السعة الحرارية - فجوة الطاقة للمواد الفوق موصلية و طرق قياسها -الديناميكا الحرارية للانتقالية في المواد فوق الموصلية -النوع الأول من المواد فوق الموصلية -تأثير النظائر-معادلة لندن - نظرية باردن وكوبر تشفرد - النوع الثاني للمواد فوق الموصلية -التيار الدوامي - الفيض المغناطيسى الكمى- المواد فوق الموصلية عالية الحرارة - ميكانيكية الموصلية الفائقة عالية الحرارة -تطبيقات .</strong></p>
+<p><strong>الخواص العازلة للمواد: الاستقطاب وثوابت العزل-أنواع الاستقطاب الكهربي- الفقد العزلي- الانهيار الكهربي للعوازل-مصادر الاستقطاب- المواد القطبية والغير قطبية-الخواص الكهربية للعوازل-ظاهرة بيزو الكهربية.</strong></p>
+<p><strong>العملى: التجارب المستحدثة</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Material science and engineering, an introduction by WilliamD, Callisters</strong></p>
+<p class="course"><strong><u>PHYS431  فيزياء نووية (2) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS331</p>
+<p><strong>التفاعلات النووية ونظرياتها -المقطع النووي -القوى النووية -دراسة محاور مركز الكتلة والمحاور المعملية والعلاقة بينها في التصادم المرن -النماذج النووية (نموذج القشرة للنواة- نموذج القطرة السائلة -النموذج التجمعي).</strong></p>
+<p><strong>العملى: التجارب المستحدثة+التأين النوعى لجزيئات الفا فى الهواء.......................</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Fujia Yang and Joseph H.Hamittan, "Modern Atomic and Nuclear Physics".1996.</strong></p>
+<p><strong>- I.S Hughes, "Elementary Particles", third edition 1991.</strong></p>
+<p><strong>-spectroscopy by K.Sigban.</strong></p>
+
+<p class="course"><strong><u>PHYS432  فيزياء إشعاعية (1) :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS331</p>
+<p><strong>مصادر الإشعاع: مصادر (الإلكترونات السريعة - الجزيئات المشحونة الثقيلة -الأشعة الكهرومغناطيسية- النيوترونات) - الوحدات الإشعاعية - تفاعل الإشعاعات المختلفة مع المواد (تفاعلات الجزيئات المشحونة الثقيلة- الإلكترونات السريعة- النيوترونات) - الجرعات الإشعاعية - الأضرار الخارجية والداخلية للأشعة - العوامل المؤثرة (الزمن- المسافة- الدروع الواقية)- الوقاية من الاشعاعات المؤينة وعلاج بعض حالات التعرض للإشعاع مثل التعرض لليود المشع وتلوث الجلد بالمواد المشعة - الأستخدامات التطبيقية للاشعاعات المؤينة فى مجال الطب - الزراعة -الصناعة والطبيعة</strong></p>
+<p><strong>العملى: التجارب المستحدثة+حساب التعرض الاشعاعى لنظائرالمشعة لجاما</strong></p>
+<p><strong>المراجع: Elementary introduction to nuclear reactor by S.E. Liver</strong></p>
+
+<p class="course"><strong><u>PHYS433 المفاعلات النووية و أمان المفاعلات :</u> </strong>(2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS431</p>
+<p><strong>النيوترونات- تفاعلات النيوترونات - الإنشطار- النيوترونات المتحررة في عملية الأنشطار ومساحة المقطع-تأثير سرعة النيوترونات على التفاعل الإنشطاري - دورة النيوترونات- مبدأ حفظ الطاقة - المفعلات النووية الأنشطارية - مكونات المفاعل الأنشطاري( الوقود- المهدئ - المبرد - قضبان التحكم - قضبان الأمان- العاكس النيوتروني) - أنواع المفاعلات السلمية لتوليد الكهرباء (مفاعلات الماء المغلي-مفاعلات الماء المضغوط - مفاعلات الماء الثقيل- مفاعلات التبريد الغازي - مفاعلات الماء و الجرافيت) - المفاعلات البحثية (المفاعلات المنجبة- حساب الفيض النيوتروني- حساب الحجم الحرج للمفاعل الإنشطاري) - المعدل اللوغاريتمى لتهدأة الطاقة- قدرة التهدأة- مقاييس الجرعات الإشعاعية- التأثيرات البيولوجية للنيوترونات.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+</strong></p>
+<p><strong>المراجع: Nuclear physics and nuclear reactors by V.L.Lefi</strong></p>
+<p class="course"><strong><u>PHYS434  فيزياء إشعاعية (2) :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS432</p>
+<p><strong>التأثير البيولوجى للاشعة - تفاعل الأشعة مع الخلايا - التأثيرات الجينية والجسدية للاشعة - الأشعة الكونية - الإشعاعات الأرضية - المصادر المشعة المستعملة فى المجال الطبى للعلاج والتشخيص - المجال الصناعى والمصادر المستعملة فى الحروب- الحماية الإشعاعية فى الطب - الأساسيات العامة -الحماية من المصادر المشعة المغلقة والمصادر الغير مغلقة - النفايات - النفايات السائلة والصلبة والغازية وكيفية التعامل معها.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+ حساب التعرض الاشعاعى لنظائرالمشعة لجاما</strong></p>
+<p><strong>المراجع: Elementary introduction to nuclear reactor by S.E. Liver</strong></p>
+
+<p class="course"><strong><u>PHYS441  ميكانيكا الكم (2) :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS341</p>
+<p><strong>نظرية ماتركس للتذبذب التوافقى- الجهد المركزى وذرة الهيروجين- أعداد الكم- كمية الحركة الزاوية للإلكترون- الحركة والجدول الدورى- نظرية الإضطراب التى لا تعتمد على الزمن- تطبيقات على ذرة الهليوم- نظرية الإضطراب التى تعتمد على الزمن وتطبيقات عليها- معادلة شرودنجر النسبية- معادلة "كلين- وجوردن".</strong></p>
+<p><strong>العملى: تدريبات</strong></p>
+<p><strong>المراجع: - quantum mechanics (Schiff).</strong></p>
+<blockquote>
+<p><strong>- quantum mechanics by Greiner.</strong></p>
+</blockquote>
+
+<p class="course"><strong><u>PHYS442  فيزياء الجسيمات :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS331</p>
+<p><strong>الجسيمات والجسيمات الضادة -الليبتونات -الكواركات-الجلونات -الهادرونات القوة الكهرومغناطسية -القوة النووية الضعيفة -القوة الكهروضعيفة -القوة النووبة الشديدة -نظرية الأتحاد العظيم -قوة الجاذبية والجاذبية الكمية -القوة الفائقة -نظرية الأنفجار العظيم -قوانين الحفظ (العدد الليبتوني -العدد الباريوني -الشحنة -الغرابة) -تصنيف الجسيمات بواسطة (التفاعل -نتائج الإضمحلال -سرعة الإضمحلال -الغزل -الغزل المتعادل -التكافؤ -تصريف الشحنة -الزمن العكسي) - نظرية الكواركات للباريونات والميزونات -الطريقة الثمانية -المتجهات الأربعة -الجسيمات الغريبة.</strong></p>
+<p><strong>العملى: التجارب المستحدثة</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- An introduction to quarks and partons by F. E.Close.</strong></p>
+<p><strong>- Elementary particles by I.S.Hughes.</strong></p>
+
+<p class="course"><strong><u>PHYS443  فيزياء حسابية (2) :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS242</p>
+<p><strong>الحلول العددية للمعادلات التفاضلية- طريقة أويلر- طريقة أويلر المعدلة- طريقة بيكارد- التكامل العددى- قاعدة ترابيزويدال- طريقة متسلسلة تيلور- طريقة رونجا-كوتا للمعادلات التفاضلية من الرتبة الأولى- طريقة رونجا-كوتا للمعادلات التفاضلية من الرتبة الثانية- حل المعادلات التفاضلية بالمؤثرات المنعكسة- نظرية شتورم ليوفيل للمعادلات التفاضلية- طرق التفاضل النهائية: المؤثرات الاساسية- متسلسلة تيلور(التفاضل والتكامل العددى)- معادلات الفروق الخطية ذات المعامل الثابت- تحويلات لابلاس.</strong></p>
+<p><strong>العملى: برامج حاسب متوافقة مع المقرر</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Computer methods for science and engineering. Robert L.Lafara, International text bookcomp.lim.(1973).</strong></p>
+<p><strong>- Mathematical methods for physicists, George Arfken (1970).</strong></p>
+
+
+
+<p class="course"><strong><u>PHYS451 دوائر منطقية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS352 or PHYS353 </p>
+<p><strong>التقنية الرقمية- الأنظمة الرقمية- البوابات المنطقية- الجبر البولى ونظريات المنطق- خرائط كارنو- الدوائر المتكاملة- دوائر البوابات المنطقية الأساسية بإستخدام الترانزيستور ثنائى وأحادى القطبية- القلابات- العدادات- دائرة السبع قطع ودائرة فك الشفرة- المسجلات.</strong></p>
+<p><strong>العملى: التجارب المستحدثة+دوائر</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Integrated electronics: analog and digital circuits and systems" By: Jacob Millman, Mc Graw-Hill Inc. Japan.</strong></p>
+<p class="course"><strong><u>PHYS171  فيزياء حيوية عامة (1) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: -</p>
+<p><strong>الكهربية خلال الجسم الحيوى، الجهاز العصبى والخلية العصبية، الجهد الكهربى للأعصاب ، رسم القلب، رسم المخ، رسم العين. فيزياء الأشعة السينية التشخيصية: توليد الأشعة السينية و إمتصاصها،التصوير بالأشعة السينية. المصادر المشعة المستخدمة فى الطب النووى، النواح الإحصائيه فى الطب النووى. أجهزة القياس الإشعاعى الأساسية و تطبيقاتها الطبيه: عداد جيجر، أنبوبة التضاعف الضوئى، محلل ارتفاع النبضات، كاميرا أشعة جاما، الجرعات الإشعاعية فى الطب النووى. الوقاية من الإشعاع فى الطب: المصادر الطبيعية والصناعيه للأشعة المؤينه، التأثيرات البيولوجية للأشعة المؤينه، وحدات الوقاية الإشعاعية وحدودها فى الطب النووى تطبيقات الحرارة والبرودة فى الطب: العلاج الحرارى بإستخدام كل من، طريقة التواصل الحرارى، الأشعة تحت الحمراء وموجات الراديو، الموجات الميكرونية والموجات فوق الصوتية، إستخدام درجات الحرارة شديدة الانخفاض فى الطب، حفظ الدم و الأنسجة والجراحه بالتبريد. إستخدام الضوء فى الطب: الخواص العامة للضواء وقياس وحدات الضوء، تطبيقات الضوء المرئى فى الطب، مناظير الالياف الضوئية المرنه، تطبيقات الأشعة فوق البنفسجية وتحت الحمراء فى الطب، التصوير بالأشعة تحت الحمراء، الميكروسكوبات.</strong></p>
+<p><strong>العملى:التجارب المستحدثة+ Spectophotometer+.............</strong></p>
+<p><strong>المراجع:</strong></p>
+<p>"<strong>Fundamentals of Ultrasonographic  Techniques" By:  J.D Wicks  &amp; K.S. Howe.</strong></p>
+<p><strong>"Aspects of Biophysics" By:</strong> <strong>William Hughes.</strong></p>
+
+<p class="course"><strong><u>PHYS172  فيزياء حيوية عامة (2) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS171</p>
+<p><strong>الطاقة والشغل والقوة داخل الجسم، حفظ الطاقات داخل الجسم، تبديل الطاقات بالجسم، الشغل والقوه، النظم الأساسية لفقد الطاقات الحرارية بالجسم. فيزياء العين والرؤيا، مقدمات الإحساس بالرؤيا وخواص الإبصار الخاص، عوامل تجميع الصورة بالعين. الشبكية كعضو الحساسية للضواء بالعين، والأنواع العامة لمستقبلات الضوء. عيوب الرؤيا وتصحيحها، العدسات الاصقة وكفائة الرؤيا.الصوت فى الطب، خواص عامة للصوت، إنعكاس موجات الصوت، الستيوسكوب (سماعة الطبيب)، تصوير الجسم بموجات فوق صوتية، تأثيرات دوبلر، فيزياء الأذن والسمع، إختبار السمع، الصمم والوسائل السمعية المساعدة، بيوفيزياء العضلات الهيكلية، المرونة، دراسة تأثير الأحمال على إنقباض العضلات، الشد فى العضلات، ديناميكاالدم. المبدأ الهيدروليكى للسريان وعلاقته بشغل القلب. التدفق القلبى وضغط الدم. ظاهرة لاندكيست. معادلة بوزايل ومعادلة برنولى وعلاقتهما بإرتفاع ضغط الدم. الميكانيكا الحيوية للرئة، الشد السطح وعلقته بالرئة. تأثير المنظفات على عملية التنفس. العلاقة بين سريان الهواء وضغطه والمقاومة أثناء عملية التنفس.</strong></p>
+<p><strong>العملى:التجارب المستحدثة+cell diffusion system+colorimeter+..........</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Basic Physics and Technology of Medical Diaggnostic Ultrasound" By: M.Husse.</strong></p>
+<p><strong>- "Medical Physics" By: O. Glasser, J.R. Cameron &amp; J.Shofronick.</strong></p>
+<p><strong>- "Biomechanics Its Foundation &amp; Objectives" By: Y.C.Fung , N.Perrone &amp; M.Anliker.</strong></p>
+<p><strong>المباديء الأساسية للفيزياء العامةد/ حسان , د/ عرفة , د/ يغمور</strong></p>
+
+<p class="course"><strong><u>PHYS271  فيزياء حيوية عامة وبيئية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS172 </p>
+<p><strong>دراسة وظائف أعضاء الجسم المختلفة، نقل الأيونات وبعض الجزيئلت خلال غشاء الخلبة، الموجات الكهرومغناطيسية دراسات تجربية على الخلية الحية، مرونة الخلية الحية، لزوجة المادة الحية للخلية، طاقات سطح الخلية، التأثيرات البيولوجية لبعض المجالات، الإنتقال والإمتصاص، الأسس الفيزيائية للعمليات الضوئحيوية، التأثيرات الحيوية، التأثيرات العلاجية المعملية، الموجات الكهرومغناطيسية (غير متأينة) أطياف ومجالات، قياس المقاومات الحيوية، تأثيرات الترددات المنخفضة، إشعاعات الميكروويف، تعريف التلوث البيئى، أنواع الملوثات البيئية ،التلوث البيئى بواسطة الإشعاع ،مصادر مشعة سائلةوصلبة ،المواد المشعة الطبيعية.</strong></p>
+<p><strong>العملى:التجارب المستحدثة+ cell diffusion system+.........</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Dielectric Behavior of Biological Molecules in Solution" By: Grant, R.J. Sheppard and G.P. South.</strong></p>
+<p><strong>- "Concepts of Radiation Dosimetry'By: Kase &amp; Nelson.</strong></p>
+
+
+<p class="course"><strong><u>PHYS272  فيزياء حيوية الموجات :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS271</p>
+<p><strong>الموجات الميكانيكية: الخواص الفيزيائية، خواص وسط الإنتشار ، إنتشار الصوت فى النماذج الشبيهة، تفاعل الموجات الصوتية مع الأنسجة البيولوجية ( الإنعكاس- التشتت -الإنكسار -الحيود -التداخل- الإمتصاص -التضعيف) ، شدة الصوت فى الأنسجة ، تعيين شدة صدى الصوت فى الأنسجة، تطبيقات الموجات فوق الصوتية فى الطب، التصوير بإستخدام الموجات فوق الصوتية. موجات الضواء: طبيعة الضواء ومصادره، المناظير وأشعة إكس وإستخداماتها فى الطب، الإنحراف والإستقطاب الضوئى، الأجهزه الضوئيه فى الطب البيولوجى، التداخل و الحيود و الإنكسار ، تجربة تداخل يانج، نظرية هايجن، نظرية الكم لبوهر لذرة الهدروجين، تشتت الضواء وإنكساره وإستخدامهما فى معرفة أحجام الجزيئات البيولوجية، النشاط الضوئى، الظواهر الصوتية ذات المدلول البيوفيزيائى، الوحدات المستخدمة فى الليزر، إشعاعات الفوق بنفسجية القياسات الصوتية، المولدات الصوتية، الإعتبارات الفيزيائية لإمتصاص الأشعة الصوتية.</strong></p>
+<p><strong>العملى:التجارب المستحدثة+ Spectophotometer +Abbe’s refractometer +...</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Introduction to Classical and Modern Optics" By: Meyer Arenot.</strong></p>
+<p><strong>- "Laser in Biology and Medicine" By: F. Hillenkamp, R. Partesi C.A. Sacchi.</strong></p>
+
+<p class="course"><strong><u>PHYS273  طاقات حيوية :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: -</p>
+<p><strong>سيل الطاقة في عالم البيولوجي تغيير الطاقة الحره للتفاعلات الكيميائية تحت الظروف الاعيارية, نظام ال أ.ت.ب. وانتقال الخلية, الميتوكوندريا , توليه ال أ.ت.ب في الخلية, التنفس و الفوسفره عن طريق الاكسده، البلاستيدات، البناء الضوئي و الفوسفره الضوئيه, انزيم البناء لل أ.ت.ب. , مبدأ الاسموزية الكيميائيه و الدوائر البروتينية, الشغل الكيميائي للبناء الحيوي, البناء الحيوي ح. د. ن. و البروتينات, تجميع التركيب الخلوي.</strong></p>
+<p><strong>العملى:التجارب المستحدثة</strong></p>
+<p><strong>المراجع: ."Aspects of Biophysics" By: William Hughes</strong></p>
+
+<p class="course"><strong><u>PHYS274  ديناميكا حرارية للأنظمة البيولوجية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS101</p>
+<p><strong>القانون الأول للديناميكا الحرارية وتطبيقه على النظم البيولوجية ، الطاقة الداخلية للشغل، القانون الأول، الانثالى، الحالة المثالية، تطبيقات على الجزيئات الكبيرة، السعة الحرارية، بقاء الطاقة، الكائنات الحية . القانون الثانى للديناميكا الحرارية: الانتروبى، الطاقة الحرارية، نظم متماثله حراريا، تحطيم البروتين، القانون الثالث والبيولوجى، التحولات والحياه. الطاقة الحرة لجيبس، الحالة المتزنة، العمليات المتحولة، إنتقال الطور، الجهد الكميائى، السوائل الأيونية، الحالة المثالية للجزيئات الكبيرة، تأثير درجة الحرارة على ثابت الاتزان، الإرتباط الكميائى للجزيئات البيولوجية. تطبيقات على طاقة جيبس الحرة: التمثيل الضوئى، الضغط الأسموزى، إتزان دونان، الإنتقال خلال الأغشية، تفاعل الإنزيمات، المساعدات زوبان البيروتينات وإتزانها وديناميكيتها.</strong></p>
+<p><strong>العملى:التجارب المستحدثة</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Dielectric Behavior of Biological Molecules in Solution" By: Grant, R.J. Sheppard and G.P. South.</strong></p>
+<p class="course"><strong><u>PHYS371  الإحصاء الحيوى :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: -</p>
+<p><strong>مفهوم علم الإحصاء - مقاييس النزعة المركزي - مقاييس التشتت و الالتواء و التفلطح - مبادئ و قواعد الاحتمالات - التوزيعات الاحتمالية- الاستدلال الإحصائي على المجتمعات للعينات كبير الحجم - اختبارات الفروض الإحصائية - أساسيات الارتباط و الانحدار - الإحصاءات الحيوية الصحية.</strong></p>
+<p><strong>العملى:التجارب المستحدثة</strong></p>
+<p><strong>.المراجع: "Mathematical Methods in Physics Science" BY:Boas </strong></p>
+
+<p class="course"><strong><u>PHYS372 الكترونيات وكهربية الأنظمة الحيوية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS251</p>
+<p><strong>بعض النظريات الأساسية. نقل القدرات العالية ونظرية سفنن. دوائر المقاومة وامكثف والملفات والمرشحات والرنين. توزيع التيار وفرق الجهد. الدوائر الكهربية المكافئة للأغشية البيولوجية. ثابت العزل الكهربى وتطبيقاتة البيولوجية.الوصلة الثنائية. ومقوم التيار. الترانزستور وتكبير التيار الكهربى وتطبيقاتة البيولوجية.</strong></p>
+<p><strong>العملى:التجارب المستحدثة+</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Integrated electronics: analog and digital circuits and systems" By: Jacob Millman, Mc Graw-Hill Inc. Japan.</strong></p>
+<p><strong>-"Applied electricity for engineers" By: Boris Kuznetsov, Mir Publishers- Moscow.</strong></p>
+
+
+
+
+<p class="course"><strong><u>PHYS373  أطياف جزيئية وتطبيقاتها الحيوية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS231</p>
+<p><strong>الأنظمة الكيميائية - الذرة - الجزيئات - طيف الأمتصاص في المنطقة فوق البنفسيجية و المنطقة المرئية للطيف - أجهزة الإمتصاص لللأشعة الفوق بنفسجية و المرئية - (مصدر الأشعة - وحدة التحكم في الأطوال الموجية - وحدة وضع العينة - وحدة قياس طاقة الأشعة - وحدة التسجيل) – تطبيقات الإمتصاص في المنطقة فوق البنفسيجية و المنطقة المرئية من الطيف - نوع المركبات التي تمتص الأشعة - الإمتصاص بواسطة المركبات العضوية و غير عضوية - التحليل الوصفي و التحليل الكمي.</strong></p>
+<p><strong>التحليل الطيفي لإمتصاص الأشعة تحت الحمراء - نظرية أمتصاص الأشعة تحت الحمراء - أجهزة الإمتصاص للأشعة تحت الحمراء - معالجة العينات - تطبيقات التحليل النوعي لإمتصاص الأشعة تحت الحمراء.</strong></p>
+<p><strong>التحليل الطيفي للرنين المغناطيسي – الرنين النووي المغناطيسي – أسس التحليل الطيفي بالرنين النووي المغناطيسي - أجهزة الرنين النووي المغناطيسي ( وحدة تغير شدة المجال المغناطيس – مصدر إنبعاج أشعة الراديو – وحدة الكشف عن إمتصاص الأشعة و وحدة وضع العينة – تحضير العينات) – الإنتقال الكيميائي - إزدواج الحركات المغزلية للأنوية المتجاورة – التعرف علي تركيب الجزيئات بإستخدام الرنين النووي المغناطيسي – التصوير بالرنين المغناطيسي.</strong></p>
+<p><strong>العملى:التجارب المستحدثة+</strong></p>
+<p><strong>المراجع: "Fundamentals of Optics" By: H.White &amp; F.Jenkins  </strong></p>
+<p><strong>أساسيات البصريات فرانسيس جينكينز وهارفي وايت ترجمة: عبد الفتاح الشاذلي، سعيد الجزيريمراجعة:محمد النادي</strong></p>
+
+<p class="course"><strong><u>PHYS374  مواد حيوية بديلة :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: -</p>
+<p><strong>المواد المستعملة فى العناصر البديلة: المعادن، السيراميك، البوليمرات، نبذه عن خواصهم وتركيبهم الكميائى: الخواص الكهربائية للمواد الحيوية البديلة: دراسة الخواص الكهربائية فى المجال الإستاتيكى (العلاقات الالكتروستاتيكية -التأين الجزيئى -المجال المحلى وعلاقة كلاسيوس وموسيتى- نظرية ثابت العزل والوزن الجزيئى). النظرية العامة للإسترخاء. طرق مختلفة لقياس الخواص الكهربية (مثل ثابت العزل- المقاومة بأنواعها وغيرهما) للمواد البديلة. الخواص الميكانيكية للمواد الحيوية البديلة. الخواص الأساسية للمواد المستخدمة، قياس الصلابة، الكسر، الإجهاد، التأكل مع الإجهاد، الخواص العامة للمواد المستخدمة فى المواد البديلة. إستجابة الأنسجة والجسم بعد عملية إستبدال المفاصل والأعضاء، تفاعل المادة البديلة مع العظم، دراسة كيفية تشكيل السطح الفاصل بين العظم الطبيعى ومادة تثبيت العضو البديل، سبب إنهيار تثبيت الجزء البديل. تطبيقات على المعادن كمادة بديلة، تفاعلات الجسم مع المعادن والبوليمرات والسيراميك.</strong></p>
+<p><strong>العملى:التجارب المستحدثة+</strong></p>
+
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Dielectric Behavior of Biological Molecules in Solution" By: Grant, R.J. Sheppard and G.P. South.</strong></p>
+
+<p class="course"><strong><u>PHYS375 ميكانيكا الكم وتطبيقاتها الحيوية :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS241</p>
+<p><strong>دراسة مبدأ عدم التحديد لهايزنبرج دراسة معادلة شرودنجر، حل معادلة شرودنجر فى المسائل ذات البعد الواحد، حل معادلة شرودنجر فى حالة ذرة الهيدروجين، حساب مستويات الطاقة للإلكترونات فى جزىء ثنائى الذرة، حساب مستويات الطاقة الإهتزازيه لجزىء ثنائى الذرة، دراسة مستويات الطاقة الدورانيه لجزىء ثنائى الذرة، دراسة ظاهرة النفق فى ميكانيكا الكم، تطبيق ظاهرة النفق فى المواد.</strong></p>
+<p><strong>العملى:التجارب المستحدثة</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Introduction to Quantum Mechanics" By: Dick &amp; Wittke.</strong></p>
+<p><strong>- "Quantum Physics" By: Gasiorowicz.</strong></p>
+
+<p class="course"><strong><u>PHYS376  فيزياء حيوية إشعاعية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS331</p>
+<p><strong>الذرة، النواة ، والنظائر المشعة. وحده الكتله الذرية، الجسيمات الأولية المستخدمة فى العلاج الإشعاعى، النشاط الإشعاعى الطبيعى والسلاسل المشعه، قوانين الإضمحلال، الأشعة الصادرة الكليه. الطرق المختلفة للإضمحلال النووى. الطاقة الممتصه فى الجسم من النظائر المشعه المختلفة. تراكم العنصر المشع الناتج من عنصر أخر مشع ، المولدات قصيرة العمر. إنتاج النظائر المشعه. تعامل الإشعاعات المختلفه مع أنسجة الجسم، العلاقة بين طاقة الجسيمات المشحونة والمدى فى الوسط ، تعامل أشعة جاما مع الوسط، الكشف عن الأشعة المؤينة.</strong></p>
+<p><strong>العملى:التجارب المستحدثة+</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>Concepts of Radiation Dosimetry" By: Kase &amp; Nelson. "- </strong></p>
+<p><strong>- "Medical Radiation Physics" By: Hendee.</strong></p>
+
+<p class="course"><strong><u>PHYS377  محاكاة الكترونية للأنظمة الحيوية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS251</p>
+<p><strong>مكبر العمليات الإلكترونية، دوائر أحادية الدخول: جامع الجهد ، محول التيار الى جهد، دوائر التفاضل والتكامل، التكامل والتفاضل الجمع. دوائر ثنائية الدخول: دوائر الطرح، مكامل الفرق، تابع الجهد. الدوائر غير الخطية: المقارن المنظمات، مكبر العمليات الإلكترونية فى المحاكاة، نظام الزنبرك والثقل، حسابات تماثليه، معادلات تفاضليه، محاكى نبضات القلب، مرشح نبضات القلب، مرشح الذبذبات، المقياس السمعى محاكى عصب ضبط الإيقاع، كاشف مقاومة الجلد الجلفانى.</strong></p>
+<p><strong>العملى:التجارب المستحدثة+</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Integrated electronics: analog and digital circuits and systems" By: Jacob Millman, Mc Graw-Hill Inc. Japan.</strong></p>
+<p class="course"><strong><u>PHYS378  حسابات بيوفيزيائية :</u></strong> (2س.م )</p>
+<p>متطلبات المقرر: PHYS172</p>
+<p><strong>دراسة نماذج مختلفة, النموذج ذو الغرفة الواحدة , النموذج ذو الغرفتين, نماذج تعتمد على المعادلآت التفاضلية, نماذج حركية الأنزيم, مطابقة النماذج مع النتائج العمليه,المحاكاه بطريقه مونت كارلو, تطبيقات طريقة مونت كارلو للمحاكلة فى الفيزياء الحيويه.</strong></p>
+<p><strong>العملى:التجارب المستحدثة+</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Mathematical Methods for Physicists" By: Arfke.</strong></p>
+<p><strong>- "Mathematical Methods in Physics Science" BY: Boas. <u><br/>
+</u></strong></p>
+<p class="course"><strong><u>PHYS471  ميكانيكا حيوية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS375</p>
+<p><strong>دراسة الميكانيكا الحيوية للعظام ، معنى معادلة الإنسياب، المرونة للأجسام الصلبه، لزوجة السوائل، خاصيه المرونة واللزوجه للمواد البيولوجية، النماذج المختلفة للمواد المرنه اللزجه، خواص المواد المرنه اللزجه، إختبار الخواص الميكانيكيه للمواد المرنه اللزجه، خواص إنسياب الدم ، دراسة لزوجة الدم ، دراسة خواص الإنسياب من الأوعيه الكبيره الى الأوعيه الصغيره.</strong></p>
+<p><strong>العملى:التجارب المستحدثة+cell diffusion system++colorimeter..........</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Biophysics" By: Elsayed, Shamloula and Ebeid.</strong></p>
+<p><strong>- "Aspects of Biophysics" By: William Hughes.</strong></p>
+<p class="course"><strong><u>PHYS472  فيزياء الليزر و تطبيقاتها الحيوية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS373</p>
+<p><strong>شعاع الليزر، انواع الليزر، تعامل أشعة الليزر مع الانسجة، مصادر أشعة الليزر، قواعد الامان و المخاطر لأشعة الليزر، التاثيرات الحيوية لأشعة الليزر ،طرق قياس أشعة الليزر، معاير وقائيه، بعض الاستخدامات لأشعة الليزر في الطب و الكيمياء و العلوم الحيويه، تقييم مخاطر أشعة الليزر.</strong></p>
+<p><strong>العملى:التجارب المستحدثة+</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Physical Principles of Ultrasonic Diagnosis " By: P.N.T. Wells.</strong></p>
+<p><strong>- "Concepts of Radiation Dosimetry" By: Kase &amp; Nelson.</strong></p>
+<p><strong>- "Medical Radiation Physics" By: Hendee.</strong></p>
+
+<p class="course"><strong><u>PHYS473  فيزياء حيوية للجهاز العصبى :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS372 </p>
+<p><strong>مقدمة، تركيب ووظيفة الجهاز العصبى، الفيزياء الحيوية للخلايا العصبية، جهد الغشاء الخلوى، الإنتقال الكيميائى، الإنتقال الكهربى، الفيزياء الحيوية للقنوات الأيونية ، انواعها ، طرق قياس نشاطها، الأجهزة العصبية ، نظرية شاملة،الأجهزة الحسية، الشبكات العصبية، التعلم و الذاكرة، الأجهزة المستخدمة فى قياس النشاط الكهربى للخلايا العصبية، التسجيل داخل و خارج الخلايا ، ضبط الإشارات،الأقطاب، الشوشرة فى القياسات، طرق تحليل النتائج.</strong></p>
+<p><strong>العملى:التجارب المستحدثة+</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Biophysics" By: Elsayed, Shamloula and Ebeid.</strong></p>
+<p><strong>" -Fundamentals of Physics " By: HallidayResnick.</strong></p>
+<p class="course"><strong><u>PHYS474  تخطيط علاج إشعاعى :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS376</p>
+<p><strong>وحدات قياس الجرعات الإشعاعية، الجرعات الصادره والممتصه. العوامل المؤثره على منحنيات توزيع الجرعات المتساويه فى الأنسجة المكافئه، أنواع الأنسجة المكافئه، الحقول الإشعاعية المربعه والدائريه المكافئه للحقول المستطيله، الجرعه النسبيه المئويه والتشتت الخلفى، نسبة (عامل) الجرعة فى الأنسجة الى ذاتها فى الهواء، نسبة الجرعة فى الأنسجة الى ذاتها فى النسيج المكافىء. تأثير إنحناءات سطح الجسم للمريض على خريطة توزيع الجرعات المتساويه وأسلوب معالجتها عمليا أو حسابها، تأثير عدم تجانس الوسط على خريطة توزيع الجرعات المتساوية. المرشحات الوتديه للطاقات العاليه، الجرعه المتكامله. خريطه المنحنيات المتساوية الجرعات لعديد من الحقول الإشعاعية (الثنائيه والثلاثيه) ، الجمع اليدوى للحقول الإشعاعية. أجهزة توجيه الحقول الإشعاعية، حساب الجرعة العلاجية عند ثبوت بعد المصدر عن سطح الجلد بإستخدام الجرعة النسبيه المئويه. روشتة حساب الجرعات العلاجية للمريض. حساب الجرعة العلاجية مع ثبوت بعد المصدر عن محور الدوران بإستخدام نسبة الجرعة فى الأنسجة الى ذاتها فى الهواء. الربط بين الجرعة الإشعاعية النسبيه المئويه والجرعة النسبيه فى الأنسجة الى الهواء.</strong></p>
+<p><strong>العملى:التجارب المستحدثة+</strong></p>
+<p><strong>المراجع:</strong></p>
+<p>- <strong>"Medical Radiation Physics" By: Hendee.</strong></p>
+<p><strong>- "Radiation Dosimetry" By: Attix &amp; Roesch Tochilin.</strong></p>
+
+<p class="course"><strong><u>PHYS475  فيزياء حيوية اتصال الخلية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS377</p>
+<p><strong>نظره عامة علي اشارات الخلية, اشارات الخلية المطوره مبكرا خلال تاريخ الحياه ، الخلايا المتصله يمكن ان تكون متقاربه او متباعده، المراحل الثلاث لاشارات الخليه ، الاستقبال، التحويل، الاستجابه، استقبال الاشارهوبدء الاستجابه، الاشاره الكيميائيه المرتبطه بالبروتين المستقبل تسبب تغير في شكل البروتين. معظم مستقبلات الاشاره تكون من غشاء بلازما البروتينات. ممرات تحويل الاشارة، الممرات تنقل الاشاره من المستقبلات الي مستجيبات الخلية . فسفرة البروتين تعتبر طريقة عامة للتنظيم داخل الخلية و تقنية غالبه التحويل الاشارة.</strong></p>
+<p><strong>العملى:التجارب المستحدثة+</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Biophysics" By:Elsayed, Shamloula and Ebeid.</strong></p>
+<p><strong>- "Aspects of Biophysics" By: William Hughes.</strong></p>
+
+<p class="course"><strong><u>PHYS476  فيزياء حيوية الاعشاب و الخلية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: BOT332</p>
+<p><strong>أهمية الاغشية البيولوجية، حماية الخلية، الاتصال الاختياري مع الوسط ، تخزين المواد داخل حجيرات داخل الحية، نظام للنقل الكهربيه الكيميائيه، التعارف الغشائي البيولوجي. التكوين الجزيئي للاغشية البيولوجيية: نموذج السائل، الموزيك النموذج الديناميكي للغشاء البيولجى، النماذج المصنعة معملياً للأغشية البيولوجة، غشاء الدهون الأحادى على سطح الماء، الهواء، الليبوزومات ن غشاء الدهون الأسود، نفاذيةالأغشية والإنتقال ؛ تأثير كلاً من درجة الحرارة، تأثير الجهد الحركى على النفاذية ن قنوات النفاذية داخل الغشاء الخلوى.</strong></p>
+<p><strong>العملى:التجارب المستحدثة</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Dielectric Behavior of BiologicalMolecules in Solution" By: Grant, R.J. Sheppard and G.P. Sou.</strong></p>
+<p><strong>- "Biophysics" By: Elsayed, Shamloula and Ebeid.</strong></p>
+
+
+<p class="course"><strong><u>PHYS477  فيزياء حيوية جزيئية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS375</p>
+<p><strong>طاقات وإحصائيات فى الخلية الحية: الديناميكا الإحصائية و علم البيولوجى ، نظرية معدلات التفاعلات المطلقة، الطرق الفيزيائية لتعين حجم و شكل الجزيئات: الحركة العشوائية و الإنتشار، قياس معامل الإنشار، الترسيب، طريقة الإتزان لتعين معامل الترسيب ن طريقة السرعة لتعين معامل الترسيب، معامل الأنتشار الدورانى والأنكسارية الثنائية ،الجزبئات الحيوية الكبيرة ، كمياء النظام الح، النقل النشط،مودلات الاغشية ،التخليق الضوئى،النتح.</strong></p>
+<p><strong>العملى:التجارب المستحدثة</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Aspects of Biophysics" By: William Hughes.</strong></p>
+<p><strong>- "Dielectric Behavior of Biological Molecules in Solution" By: Grant, R.J. Sheppard and G.P. South.</strong></p>
+
+<p class="course"><strong><u>PHYS478  فيزياء حيوية صحية :</u></strong> (2س.م)</p>
+<p>متطلبات المقرر: PHYS376</p>
+<p><strong>الإشعاعات المؤينة: الهيئات الدولية والمنظمات الدولية المهتمة بتقيين وقياس الأشعة المؤينة. معايير قياس الجرعات الإشعاعية. غرفه التأين (المفتوحة للهواء المطلق) العيارية. قياس الجرعة الإشعاعية الممتصة ، الطاقة الحركية المنسابة فى الوسطKerma. إشعاع جاما الصادر النوعى. حساب الجرعات الممتصة للعناصر المشعة داخل الجسم ذات إشعاع بيتا أو جاما. القواعدالأساسية للوقاية من الأشعة المؤينه، تعرالأفراد العملين فى مجال الأشعة والعامة. أجهزة القياس للجرعات الشخصية، مقياس الجيب، بادج الفيلم، ومقياس الجرعات الوميضى الحرارى. الإشعاعات غير المؤينة: تعامل أشعة الليزرمع الأنسجة، مصادر أشعة الليزر وأنواعها، قواعد الأمان والمخاطر لأشعة الليزر، التأثيرات الحيوية لأشعة الليزر، طرق قياس أشعة الليزر، معايير وقائيه، تقييم مخاطر أشعة الليزر وتنيفها، بعض الإستخدامات لأشعة الليزر فى الطب والكيمياء والعلوم الحيوية. </strong></p>
+<p><strong>العملى:التجارب المستحدثة</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- "Laser in Biology and Medicine" By: F. Hillenkamp, R. Partesi C.A. Sacc.</strong></p>
+<p><strong>- "Radiation Dosimetry" By: Attix &amp; Roesch Tochilin.</strong></p>
+
+<p class="course"><strong><u>PHYS103 أساسيات علوم الحاسب (1) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر:-</p>
+<p><strong>مكونات الحاسب المختلفة و وظائفها - المصطلحات الأساسية المستخدمة مع الحاسبات - دراسة أنظمة التشغيل - برامج الكتابة - الجداول الإلكترونية - برنامج العروض التقديمية - إستخدام الأنترنت في البحث العلمي.</strong></p>
+<p class="course"><strong><u>PHYS104  أساسيات علوم الحاسب (2) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر:-</p>
+<p><strong>التعريف بالفورتران - برامج الفورتران 90 البسيطة - الثوابت العددية والمتغيرة - تعبيرات رياضية - جمل الإدخال والإخراج - الجمل الشرطية - الحلقات الشرطية - التعبيرات المنطقية والجمل التحكمية - أساسيات الدوال والبرامج الفرعية - تعريف المصفوفات - توصيف الشكل أو التنسيق الأولى- تنفبذ الحروف والأرقام - أمثلة من البرامج - طرق للمصفوفات - اثبات بعض الأنواع - تطبيقات متقدمة- تنفيذ ملفات - انواع بيانات وتطبيقات.</strong></p>
+<p><strong>العملى: برامج حاسب متوافقة مع المقرر</strong></p>
+<p><strong>المراجع:</strong></p>
+<ul>
+<li><blockquote>
+<p><strong>Stephen j.Chapman,”Fortran 90/95 for scientists and engineers ,Mc Graw Hill 1998,ISBN 0070119384.</strong></p>
+</blockquote></li>
+</ul>
+<p class="course"><strong><u>PHYS261  بنية وتنظيم الحاسبات :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: -</p>
+<p><strong>التنظيم الأساسى و التصميم - الإدخال و الإخراج والتوقف - برمجة العمليات الحسابية والمنطقية - برمجة الإدخال و الإخراج - نقل البيانات - التحكم فى الذاكرة - تصميم و خوارزميات المعالج الحسابى- وحدات البيانات غير المتزامن الوصول المباشر للذاكرة - الذاكرة الافتراضية - المعالجات المتعددة.</strong></p>
+<p><strong>العملى:Software package+circuits </strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- John L. Hennessy and David A. Patterson (2003). Computer Architecture: A Quantitative Approach, Third Edition, Morgan Kaufmann Publishers, Inc. ISBN 1558605967.</strong></p>
+<p class="course"><strong><u>PHYS262  أساسيات برمجة هيكلية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: -</p>
+<p><strong>الثوابت والمتغيرات - المؤثرات الحسابيية - العلاقات والمؤثرات المنطقية - المؤثرات المركبة - جمل الإدخال والإخراج وفورم البيانات - جمل الملاحظات - هياكل التحكم - جمل التكرارات - البرامج الفرعية - الدوال و الاجراءات - المصفوفات - السجلات - الملفات - دوال التكرار - دراسة إحدي لغات البرمجة.</strong></p>
+<p><strong>العملى:تدريبات وبرامج حاسب الى متوافقة مع المقرر</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Stroustrup, Bjarne (2000). The C++ Programming Language, Special Edition, Addison-Wesley. ISBN 0201700735.</strong></p>
+<p class="course"><strong><u>PHYS263 هياكل البيانات و الخوارزميات :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS262</p>
+<p><strong>أنواع البيانات المجردة - المرصصات - تعريف المرصصات و عملها - تنفيذ المرصصات بواسطة السجلات و المصفوفات - تطبيقات على المرصصات - صفوف الانتظاروتطبيقاتهاوتنفيذها - القوائم المترابطة الفردية والمزدوجة - القوائم المترابطة و تطبيقها فى المرصصات و الطوابير- هياكل الأشجار- شجرة البحث الثنائى- خوارزميات البحث - خوارزميات الترتيب - الترتيب بالإدخال و بالاختيار.</strong></p>
+<p><strong>العملى: تدريبات وبرامج حاسب الى متوافقة مع المقرر</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Stroustrup, Bjarne (2000). The C++ Programming Language, Special Edition, Addison-Wesley. ISBN 0201700735.</strong></p>
+
+<p class="course"><strong><u>PHYS264  برمجة شيئية موجهة :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS262</p>
+<p><strong>تعريف الشيئيات وأنواعها - طرق التصميم بواسطة البرمجة الشيئية التصميم المبنى على الدوال وصنوف البيانات - خرائط الهياكل التوارثية - امثلة تصميمية - تصميم مواجهات الحاسب للمستخدم - أهداف مواجهات الحاسب للمستخدم، تطبيقات النوافذ ( النوافذ) وطرق تنفيذ مواجهاتها، استخدام شاشات العرض.</strong></p>
+<p><strong>العملى: تدريبات وبرامج حاسب الى متوافقة مع المقرر بلغة C++ او J++ او V.B ..............</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Schach, Stephen (2006). "Object-Oriented and Classical Software Engineering", Seventh Edition. McGraw-Hill 2006. ISBN 0073191264.</strong></p>
+
+
+
+<p class="course"><strong><u>PHYS265  تنظيم و معالجة الملفات :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS262</p>
+<p><strong>الملفات - لمحة عامة عن الملفات - خوارزميات الترتيب والدمج الخارجى - الوصول العشوائى- التبعثر التام - تنظيم الملف كهيكل شجرى- ملفات المفاتيح المتعددة - الملفات المعكوسة.</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Alan L.Tharb ."File organization and processing", by Maloy lithographic 2007, ISBN 0471605212.</strong></p>
+<p class="course"><strong><u>PHYS361  نظم قواعد البيانات :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS263</p>
+<p><strong>نظرة عامة على إدارة قواعد البيانات - البيانات و استقلاليتها - عمارة نظم قواعد البيانات - نظم إدارة قواعد البيانات - نظرة عامة على قاعدة البيانات DB2- لغة SQL - رياضيات العلاقات وجبر العلاقات - تعريف البيانات - تعريف الرؤية - العلاقات المنطقية للبيانات.</strong></p>
+<p><strong>العملى:التدرب على انشاء قواعد بيانات بأى حزم برمجية مخصصة لهذا الاتجاه</strong></p>
+<p><strong>المراجع:</strong></p>
+<ul>
+<li><p><strong>Elmasri Navathe.” Fundamentals of Database Systems”, ISBN 0805317554, Addison Weseley 2000</strong><em>.</em></p></li>
+</ul>
+<p class="course"><strong><u>PHYS362  معالجة الصور (1) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS264</p>
+<p><strong>أصول معالجة الصور الرقمية - امثلة للحقول التى تستخدم معالجة الصور الرقمية - الخطوات الأساسية فى معالجة الصور الرقمية - مكونات نظام معالجة الصور الرقمية - عناصر الفهم البصرى - الضوء و الطيف الكهرومغناطيسى - الأحساس بالصور و التقاطها - عينات الصور - بعض العلاقات الأساسية للنقاط المكونة للصورة - العمليات الخطية و الغير خطية - تحسين الصور فى المجال المكانى</strong></p>
+<p><strong>العملى: تطبيقات باستخدام Matlab</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Rafael C.Gonzalez, Richard E.Woods, "digital image processing", India, 2002.</strong></p>
+<p class="course"><strong><u>PHYS363  شبكات الحاسب الآلى :</u> </strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: -</p>
+<p><strong>استخدامات شبكات الحاسبات - توبوغرافية الشبكات - نماذج ايزو المرجعية للشبكات - نماذج تصاميم الشبكات المحلية - بروتوكول الانبعاث التحكمى وبروتوكولات الانترنت - تصميم العمود الفقرى - انبعاث البيانات - طرق اضعاف الرسائل - سعة قنوات الاتصال - وسائط الانتقال - الارسال الموجه - الارسال الغير موجه - الارسال المضاعف- تشفير البيانات - طبقة التحكم الرابط - بروتوكولات هذه الطبقة - السريان المحكوم - اكتشاف الأخطاء - الارسال المضاعف - تحليل البروتوكلات - الشبكات واسعة النطاق- خوارزميات تحديد المسار - البث الكلى - حزم المعلومات - الشبكات محكومة النطاق - إذاعة حزم المعلومات عبر الأقمار الصناعية - الشبكات الحلقيةو النجمية - بروتوكلات نقل الملفات - نظم قواعد البيانات الموزعة .</strong></p>
+<p><strong>العملى:</strong></p>
+<p><strong>Simulator software package for networking such as NS2 or Matlab or simulation by any programming language +applications in Intrnet or project</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- William Staillings . “Data and Computer Communication”, ISBN 0130843709, Printic Hall 2001.</strong></p>
+
+<p class="course"><strong><u>PHYS364  الذكاء الإصطناعى (1) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS264</p>
+<p><strong>مقدمة عن مفاهيم و تعاريف الذكاء الاصطناعى - اكتساب المعارف و تمثيلها: حسابات مسنده - التمثيلات الهيكلية - تمثيلات الشبكات - حالة البحث الفراغى: أشجار ورسومات - بحث استقرائى- نموذج أسس التفكير- حالات أسس التفكير- التفكير مع الشك و نقص المعرفة - نظرة عامة عن لغات البرمجة للذكاء الصناعى: قواعد البيانات - نظرة عامة على تطبيقات الذكاء الاصطناعى- حاسبات الذكاء الأصطناعى - العلاقة بين الذكاء الإصطناعى والشبكات العصبية الإصطناعية.</strong></p>
+<p><strong>العملى: تدريبات وبرامج حاسب الى متوافقة مع المقرر.</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Floriana Esposito, Zbigniew W. Ras, Donato Malerba, ”Foundations of Intelligent Systems: 16th International Symposium, ISMIS 2006”, Italy, 2006, (Lecture Notes in ِArtificial Intelligent). ISBN: 354045764X.</strong></p>
+<p><strong>- Ivan Bratko, ”Prolog Programming for Artificial intelligent”, ISBN 0201403757, Addison-Wesley 2001.</strong></p>
+
+
+
+
+
+
+<p class="course"><strong><u>PHYS365  الرسم بالحاسب :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS264</p>
+<p><strong>مقدمات لرسومات الحاسب - نظرة عامة على انظمة الرسومات - خوارزم رسم الخط - خوارزم رسم الدائرة - خوارم رسم الشكل البيضاوى - خوارزميات المنطقة الممتلئة - خوازميات المضلع الممتلئ - خوارزميات قصاصة الخط - خورارزميات قصاصة المضلع - التحويلات الثنائية الأبعاد - التحويلات العامة (نقل - دوران - قياس ) - التحويلات المركبة - تمثيل و تقدير الجسم ثلاثى الآبعاد - العرض و التحويلات الثلاثية الأبعاد - ( نقل - دوران - قياس - انعكاس) - الرؤية الثلاثية الأبعاد و نموزج الكاميره.</strong></p>
+<p><strong>العملى:مسائل</strong></p>
+<p><strong>المراجع:</strong></p>
+<p>- Bradley Kjell,"Vector Math for 3D Computer Graphics",2003.</p>
+
+<p class="course"><strong><u>PHYS366  تحليل وتصميم الخوارزميات :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS263</p>
+<p><strong>فكرة عن مفهوم تصميم وتحليل وتعقد الخوارزم - الطريقة العامة - طريقة البحث الثنائى - الترتيب بالإختيار - أقصر الأشجار المولدة الأقصر - البرمجة الديناميكية - أنسب طريقة للبحث فى الأشجار - طريقة التتبع للخلف - مسالة الملفات الثمانية - نظرية كوك .</strong></p>
+<p><strong>العملى: برامج حاسب لخدمة المقرر بأى لغة + مسائل حسابية</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Gilles Brassard and Paul Brately,“Algorithms theory and practice”,prantic hall international,1988,1SBN 013023169X.</strong></p>
+
+<p class="course"><strong><u>PHYS367  تحليل و تصميم النظم :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS263</p>
+<p><strong>مفاهيم أساسية - تعريف (النظام - المستخدم) - محلل النظم - قاموس البيانات - تركيب اللغة الإنجليزية- شجرة القرار - دراسة الجدوى - أساليب التصميم - المكونات الفيزيائية لتصميم النظام - برامج النظام - ملفات النظام - تحديد منطق العمليات - تصميم برامج التحكم فى النظام - التقارير و الملفات.</strong></p>
+<p><strong>العملى:projects </strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- DeMarco, Tom. " Structured Analysis and System Specification" ISBN 0138543801.</strong></p>
+
+<p class="course"><strong><u>PHYS461  نمذجة ومحاكاة :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS263</p>
+<p><strong>أساسيات وطبيعة نموذج المحاكاة - بناء نموذج المحاكاة - التحقق من صحة النموذج و برنامج المحاكاة -أنواع نماذج المحاكاة - المحاكاة المتصلة و المنفصلة - المحاكاة العشوائية - علاقة مخرجات اسلوب المحاكاة بنتائج العمليات العشوائية - المحاكاة باستخدام الحاسبات - التوزيعات الاحتمالية - توليد الاعداد العشوائية - الطرق الإحصائية لحساب المشاهدات الفعلية ومقارنتها بمخرجات أسلوب المحاكاة - تطبيقات على المحاكاة العشوائية مثل محاكاة المشى العشوائى و محاكاة طوابير المرور - بعض التطبيقات على المحاكاة الرياضية و المتصلة - استخدام بعض الحزم البرمجية المستخدمة فى محاكاة التجارب الفيزيائية.</strong></p>
+<p><strong>العملى: برامج وتمارين لخدمة المقرر+Computer simulation software package</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Roger McHaney, ”Computer Simulation A practical Perspecive”, Academic Press,1999.</strong></p>
+<p><strong>- Hamdy A. Taha,”Operations Research”, Collier Macmillan Publishers,1989.</strong></p>
+
+<p class="course"><strong><u>PHYS462  معالجة الصور (2) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS362</p>
+<p><strong>تحسين الصور فى مجال التردد - مقدمة إلى تحويل فورييرِ ومجالِ التردد - تنعيم مرشحات مجال التردد - توضيح مرشحات مجال التردد - إعادة الصورة - نمازج الضوضاء - تحويل هندسى - معالجة الصور الملونة - اساسيات اللون - عمليات ال wavelets - ضغط الصورة - تقسيم الصورة</strong></p>
+<p><strong>العملى: تطبيقات باستخدام Matlab</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Rafael C.Gonzalez, Richard E.Woods, "digital image processing", India, 2002.</strong></p>
+
+<p class="course"><strong><u>PHYS463  التنقيب في البيانات :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS361 </p>
+<p><strong>مفهوم التنقيب البيانى - التعليم الاستقرائى - تعليم الآلة - الفروق بين التنقيب البيانى و التعليم الآلى - نماذج التنقيب البيانى - خصائص مستودعات البيانات - نموذج المستودع البيانى - مشكلات التنقيب البيانى- تطبيقات التنقيب البيانى - دوال التنقيب البيانى - الادراج و التمييز - الاتحاد - النماذج اللحظية و المتتالية - التجزئة و التجميع - طرق التنقيب البيانى - تحليل المجموعات - الاستنتاج والاستقراء - شجرة القرار- الشبكات العصبية - الرؤية البيانية - امثلة على التنقيب البيانى.</strong></p>
+<p><strong>العملى: برامج متوافقة مع المقرر</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Morgan Kaufmann, "Data Mining: Concepts and Techniques", March 2006.</strong></p>
+
+<p class="course"><strong><u>PHYS464  شبكات لاسلكية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS363</p>
+<p><strong>طيف موجات الراديو - كيف تعمل الشبكات الاسلكية البسيطة - كيفية انتقال البيانات عن طريق الموجات - تكنولوجيا الهوائيات والاقمار الصناعية - انماط الانتشار الهوائى - البث الاذاعى و التلفيزيونى - الشبكات الخلوية - الشبكات الاسلكية عديمة البنية التحتية - شبكات المحلية الاسلكية - انظمة الموبايل الانالوج و الديجيتال - أنظمة الموبايل مثل GSM,CDMA - بروتكولات تحديد المسارفى الشبكات الاسلكية - البلوتوث.</strong></p>
+<p><strong>العملى:</strong></p>
+<p><strong>Simulator software package for networking such as NS2 or Matlab or simulation by any language + applications in Internet or project</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>William Staillings. ”Wireless Network and Communication”, ISBN 0130843709, Printic Hall 2005.</strong></p>
+
+<p class="course"><strong><u>PHYS465  الذكاء الإصطناعى (2) :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS364</p>
+<p><strong>أنظمة التعرف على النمازج - التقسيم و التجميع - انتزاع المميزات - التصنيف - دورة التصميم - اختيار المميزات - التدريب - التعلم بمعلم - التعلم بدون معلم - نظرية القرار لبايسين - تصنيف اقل معدل خطأ - نظرية القرار لبايس - الميزات المشوشة و المفقودة - تقدير بايسن - تقدير بايسن البارامترى - الشبكات العصبية متعددة الطبقات.</strong></p>
+<p><strong>العملى: تدريبات وبرامج حاسب الى متوافقة مع المقرر.</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Richard O.Duda, et.at,patter classification,Canada,2001.</strong></p>
+
+
+
+
+
+
+<p class="course"><strong><u>PHYS466  أمان و تشفير الحاسب :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS363</p>
+<p><strong>اقتحام الحواسب - نقاط السقوط الامنى- وسائل الدفاع ضد المقتحمين - وسائل التشفير- فك الشفرات - نظام التشفيرالنموذجىDES)) - الفيروسات - النماذج الآمنة- التحكم فى نظم التشغيل- حماية الملفات -تصميم نظم التشغيل الامنة - نماذج الحماية - خرق نظم التشغيل - قواعد البيانات الامنة - أمان الشبكات والاتصالات الامنة.</strong></p>
+<p><strong>العملى:برامج متوافقة مع المقرر</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Deborab Russell, and G.T. Gangemi sr ,”Computer Security Basics“,Oreilly 2006, ISBN 0596006691.</strong></p>
+
+<p class="course"><strong><u>PHYS467  الوسائط المتعددة :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر: PHYS362</p>
+<p><strong>تعريف الوسائط المتعددة - تصميم نظام معالج الصورة - الرسومات الراستر - التحويل من الأنظمة الرقمية و المنطقية - ضغط الصورة - الخلط والعرض عند 30 إطار فى الثانية - فيزياء الصوت - كروت الصوت - مدقق الصوت و الصورة - الحركة .</strong></p>
+<p><strong>العملى:PROJECT</strong></p>
+
+<p><strong>المراجع:</strong></p>
+<p><strong>- Multimedia Making it Work, by Tay Vaughan. Osborne McGraw Hill, 1993. ISBN 007881869.</strong></p>
+
+<p class="course"><strong><u>PHYS468  التعليم الالكترونى و المكتبة الرقمية :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر:PHYS467 </p>
+<p><strong>استخدام وسائل التكنولوجيا فى التعليم - التعليم عن بعد - تصميم الموقع - ماذا تعنى المكتبة الرقمية - المنطقة الجغرافية - دور المكتبة الرقمية فى مجتمع المعلومات - التفاعل و الوساطة المتكاملين فى المكتبة الرقمية - المكتبة الرقمية والأحقية - النشر الكترونى.</strong></p>
+<p><strong>العملى:PROJECT</strong></p>
+<p><strong>المراجع:</strong></p>
+<p><strong>- Greenstein, Daniel I., Thorin, Suzanne Elizabeth. The Digital Library: A Biography. Digital Library Federation (2002) ISBN 1933645180.</strong></p>
+
+<p class="course"><strong><u>PHYS469  ماده مختارة في الحاسب :</u></strong> (2س.م + 1س.م عملي)</p>
+<p>متطلبات المقرر:-</p>
+<p><strong>ماده لم تتضمن في المنهج ولكنها ضرورية للطالب، ويجب أن تقترح كمنهج إختياري من قبل القسم.</strong></p>
+</template>
+  <template id="tpl-eng"><p class="doctitle">Syllabus for Physics Courses</p>
+<p class="course"><strong><u>PHYS101 General Physics (1):</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: -</p>
+<p>Dimensions and Physical units - Vectors - Static and dynamic of solid bodies - Conservation lows of energy and motion - general gravity – Elasticity – Viscosity - Surface tension - Capillary tube - Different methods for determination of surface tension - Bernoulli’s equation - Poisson’s equation - Stock low - Concept of heat - Adiabatic variation - Thermometers - Heat expansion - Isothermal variation - Heat capacity - Specific heat - Gases Liquefaction - Humidity - Transfer of heat - Radiation and its application - Low of gases.</p>
+<p><strong>References:</strong></p>
+<ul>
+<li><p>Loney, S.Humphery, H. Serway<u>.</u></p></li>
+</ul>
+<p class="course"><strong><u>PHYS102 General Physics (2):</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS101</p>
+<p>Electric charge - Coulomb’s low - The electric field - Lines of electric forces - Gauss’s low - Electric potential difference - The relation between potential difference and electric field - Capacitance and Capacitors - Isolators - Properties of dielectrics - Electric current and resistance - Power and Energy - Kirshoff’s low - Whetston’s Bridge - Metric Bridge - Electrical potential and potentiometer - Magnetization - Inverse square low - Moment of inertia - The effect of two perpendicular fields - Laplace’s equation - Magnetic field Strength - Measurement apparatus - Law of motion - Rotational motion - Vibration motion - Simple harmonic motion - Waves - Sound and light waves - Reflection and refraction lows - Mirrors and lenses - Prism - Spectra - Interfaces and diffraction - Hygen’s theory.</p>
+<p><strong>References:</strong></p>
+<p>- Loney, S.Humphery, H. Serway.</p>
+<p class="course"><strong><u>PHYS141 Classical mechanics (1):</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: -</p>
+<p>Vector algebra - Force and linear motion - motion in plane (projectiles - Circular motion - Polar coordinates) - Work and energy - linear momentum and circular momentum - impulse rocket - elastic and inelastic collision.</p>
+<p class="course"><strong><u>PHYS142 Classical mechanics (2):</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS141</p>
+<p>Motion in direction of central force- potential energy- motion equation- Gravitational force and keppler law- system of particle- circular motion- moment of inertia- Theory of parallel axes- Rotational dynamic of particle- Application on simple and compound pendelium- motion resistance- Fraction of motion.</p>
+<p class="course"><strong><u>PHYS211 Physical Optics:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS102</p>
+<p>Wave motion – Superposition of wave – Young's experimental – Relation between the amplitude of reflected and refracted beam at plane surface – Interference involving multiple reflection – Reflection from plane parallel film - Reflection from film of varying thickness – Newton rings – Interferometers and its applications – Fresnel's diffraction - Fresnel's half - period zone – Zone plate- Luminosity of the diffraction edges – Fraunhofer diffraction by a single slit - Fraunhofer diffraction by multi slits – diffraction grating – Resolving and dispersion power – Polarization – Polarization by reflection and refraction – Polarization by double refraction – Nicol prism – Hygens theory for Polarization of light by double refraction - Polaremeter.</p>
+<p><strong>References:</strong></p>
+<p>- Available text books at the library and digital library.</p>
+<p>- Soars, John and Liz Soars, Headway: Elementary level Oxford University 1996.</p>
+<p class="course"><strong><u>PHYS212 Advanced Optics:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS211</p>
+<p>Maxwell's equations - Maxwell's equations and the properties of light wave - The equation of wave motion - Energy in a wave and Poynting theorem - Reflection and refraction of electromagnetic wave - Fresnel's equation - Browster's law - The polarization - Polarization by reflection - Polarization by refraction - Double refraction and explain Huygens's theory-Different method of polarization - Elliptically and circularly polarized light for uniaxial crystal - wave surface for ordinary beam and extra ordinary beam - Babint 's compensator - The quarter wave plate - Farady effect - Kerr effect-Dispersion - Normal dispersion and Cauchy's equation - Anomalous dispersion and Sellmeier's equation - Optical activity.</p>
+<p><strong>References:</strong></p>
+<p><strong>-</strong> Available text books at the library and digital library.</p>
+<p>- Soars, John and Liz Soars, Headway: Elementary level Oxford University 1996.</p>
+<p class="course"><strong><u>PHYS213 Vibration and Waves:</u></strong></p>
+<p>2 Credit hrs. Lecture</p>
+<p>Prerequisites Courses: PHYS102</p>
+<p>Simple harmonic motion – Free vibrations – Oscillatory – Resonance – Supper position of harmonic vibrations – One dimensional treatment of waves – Differential form of the wave equation – Velocity of waves in strings, rods and gases – Group velocity – Standing waves – Elementary consideration of diffraction of x-rays and electrons by crystalline materials – Waves in more than one dimension – Water waves – Solitary waves.</p>
+<p class="course"><strong><u>PHYS221 Astrophysics and Meteorology Physics:</u></strong></p>
+<p>2 Credit hrs. Lecture</p>
+<p>Prerequisites Courses: PHYS101</p>
+<p>Light- stellar distances - Analyzing starlight - Stellar properties (luminicity and masses- photometric terms - Forms of radiation- temperature degrees) - Stellar spectra - Galaxies - Basic properties of the planetary system - Planetary atmospheres - Modeling the atmospheres of planet.</p>
+<p class="course"><strong><u>PHYS222 Thermodynamics:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS101</p>
+<p>Basis of thermodynamics- kinetic theory of gases- equations of states for ideal gases- vander Waals equation for real gas - Boyle Degree of Real Gas <em>-</em> Andraw's equation- state variables- Work- internal energy- Heat capacity- Differentiation of state function- Volume expansion coefficient and compressibility- The first law of thermodynamics- Applications of the first law of thermodynamics- The second law of thermodynamics- Applications of the second law of thermodynamics- Entropy- Maxwell- Boltzmann's equation distribution- Second equation of energy- Joule- Thomson experiment- Joule effect- Reversible and irreversible processes the first law of thermodynamics- thermodynamics potentials- Phase change- Third law of thermodynamics- Applications on the third law of thermodynamics- Heat transfer in solids- Black- body radiation and Steeven's law- Distribution function- Distribution of molecule's velocity- distribution functions of energy- Probability functions.</p>
+<p><strong>References:</strong></p>
+<p><strong>-</strong> Heat and Thermodynamics , Zemansky&amp;Dittman, McGrew-Hill.</p>
+<p>- Physics:Principle with applications d.c Gancoli,U.S.A.</p>
+<p class="course"><strong><u>PHYS223 Crystallography and x- ray Diffraction:</u></strong></p>
+<p>2 Credit hrs. Lecture</p>
+<p>Prerequisites Courses: PHYS231</p>
+<p>Types of solids - Types of atomic bonds - Methods of crystal growth (Predgeman method - Zohker Alexy method- Partial melting method) - Crystal structure- Bravais lattice - Miller indices - Crystal imperfections - Bragg's law - Diffraction methods (Laue method- Powder method - Rotation method) - Electrons diffraction - Neutrons diffraction - Lattice dynamics and photons - Lattice vibrations - Thermal properties of dielectric materials.</p>
+<p class="course"><strong><u>PHYS231 Atomic Physics:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS101</p>
+<p>Bohr's theory of the hydrogen atom – Motion of the hydrogen nucleus – Elliptic orbits for hydrogen – Optical spectral series – Vector model of atom – Pauli's exclusion principle – Spectral notation – Spectrum of sodium – Zeem effect (normal - anomalous) – Land'e g factor – Stern – Gerlach – Spectra of two electron atoms – the laser – X-ray.</p>
+<p><strong>References:</strong></p>
+<p>- Available text books at the library and digital library.</p>
+<p class="course"><strong><u>PHYS241 Electromagnetic:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS102</p>
+<p>Waves - Calculated the differential and integrating waves - Semi axis - electrostatic - Electrostatic field and its properties - Coulomb Force - Intensity of the electric field - Electrical potential - Work and the energy in the electrostatic field - Laplace’s Equation - solution of Laplac’s equation - Electric field equation of forces lines - Equation of equal potential surfaces - Electrical polarizability and its applications - Applications of the dipole and it moment - Quarter dipole - Electrostatic field in the materials - The electric current and the conductors - Ohm’s law - Continually equation - Magnetic field - Ampere’s low - Faraday’s law and the induction force - Lorentze equation - The motion of conductor in magnetic field - Maxwell equation - Hall effect - The magnetic properties of Paramagnetic and diamagnetic materials - Magnetic susceptibility - Hysterias loop - Magnetic surface.</p>
+<p><strong>References:</strong></p>
+<p><strong>-</strong> Engineering electromagnetic, Mcgraw-Hill, William H.Hayt.</p>
+<p>- Fundamental of physicsby David Halliday and Robert Resnek.</p>
+<p class="course"><strong><u>PHYS242 Mathematical Physics (1):</u></strong></p>
+<p>2 Credit hrs. Lecture</p>
+<p>Prerequisites Courses: PHYS102</p>
+<p>Introduction – Discovery of Errors – Error Correction – Solution of linear Algebraic Equation – Inverse Matrices – Vectors – Multiplication of Vectors. Gradation and Diversion – Gawes Gordon Method of Solving Linear equation – Inverse Matrix using Gawes Gordon Method - Linear Integration – Sotcks – Numerical Integration - Forier Series and Applications – Differentiation and Integration of Forier Series – Solving a number of problems using Forier Series.</p>
+<p><strong>References:</strong></p>
+<p><strong>-</strong> Computer methods for science and engineering. Robert L.Lafara, International text bookcomp.lim.(1973).</p>
+<p>- Mathematical methods for physicists, George Arfken (1970).</p>
+<p class="course"><strong><u>PHYS243 Modern Physics:</u></strong></p>
+<p>2 Credit hrs. Lecture</p>
+<p>Prerequisites Courses: PHYS241</p>
+<p>Particle nature of waves: The Photo electric effect - Quantum theory - Wave Particle - Duality - X-ray - X-ray diffraction - The Compton effect - Pair Production. Wave nature of particles: De Broglie Wave - Wave Function - De Broglie Wave Velocity - Phase and group velocities - Electron diffraction - Uncertainty Principle - Application of the Uncertainty Principle - Atomic Structure: Atomic models - Rutherford Scattering Formula - Electron Orbits - Atomic Spectra - Bohr Theory for the atomic structure - Energy levels and spectra - Atomic Excitation - The Quantum numbers.</p>
+<p><strong>References:</strong></p>
+<p><strong>-</strong> Concept of modern physics (Arthur Beiser).</p>
+<p>- Modern physics for scientists and engineers (Stephen T. Thrnton).</p>
+<p class="course">PHYS251 Principals of Electronic Circuits : </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS102</p>
+<p>D.C. current circuits: series and parallel circuits - Kirchhoff’s laws - Circuit analysis systems (general method- node’s analysis - equivalent voltage sources conversion for node analysis - the superposition theorem - Thevenin’s theorem - Norton’s theorem) - A.C. circuits: waveform shapes - Effective value - Voltage and current in R - L – C - Power and power factor correction - Complex numbers - complex reactance -Conduction in series and parallel in A.C. circuits - Resonance circuits-Four-Terminal Network: - Z-parameters - H-parameters -Y-parameters - Equivalent circuits- Study of integrator and differentiator - Low pass and high pass filters - Frequency response - Oscilloscope.</p>
+<p><strong>References:</strong></p>
+<p>- "Applied electricity for engineers" By: Boris Kuznetsov, Mir Publishers-Moscow.</p>
+<p class="course">PHYS311 Atomic Spectroscopy: </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS231</p>
+<p>Emission and absorption spectra - Concept for spectral line intensity - Broadening of spectral line - Factor affecting the broadening of spectral line - Dispersion and resolving power - Dispersion power and deviation for prism and diffraction grating - Different type of spectrum devices - Excitation sources - The quantitative and qualitative analysis - ٍStandard calibration curve and working curve.</p>
+<p><strong>References:</strong></p>
+<p>- An introduction to atomic and nuclear physics, H. Semat</p>
+<p class="course"><strong><u>PHYS312 Electron optics:</u></strong></p>
+<p>2 Credit hrs. Lecture</p>
+<p>Prerequisites Courses: PHYS211</p>
+<p>Introduction to electron optics – Motion of electrons in uniform (electrostatic and magnetic) fields – Types and design of electron lenses – Physical similarity of light and electron lenses – Types of electron microscope and applications.</p>
+<p><strong>References:</strong></p>
+<p>- Principle of electron optics Hawkes PW,Kasper (1996).</p>
+<p class="course">PHYS321 Solid State Physics (1): </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical </p>
+<p>Prerequisites Courses: PHYS231</p>
+<p>Basis of crystal structure - One dimensional lattice - Two dimensional lattice - Three dimensional crystal lattice - Primitive cell and unit cell - Symmetry operations - Crystal lattice systems - Bravais lattice - Miller indices - Examples of the crystal structures - Identification of the crystal structure by x- ray diffraction - Bragg's law - Electrons diffraction - Neutrons diffraction - Diffraction methods for crystal structure analysis (Laue method - Powder method - Rotation method) - Crystal binding - Crystals of inert gases - Van der Waals interaction - Repulsive energy - Attraction energy - Ionic crystals and Modelung constant - Covalent crystals - Metal crystals - Hydrogen bonded crystals - Thermal properties of solids - Heat capacity - Classical theory - Einstein theory - Cebye theory - Heat capacity of conduction electrons in metals – Phonons - Thermal conductivity of solids - Thermal expansion - free electron theory of metals - Drude and Lorentz classical theory - Summerfield quantum theory - Electrical conductivity and Ohm's law Wiedmann and Franz ratio - Energy levels and density of orbital in one dimension - density of orbital in three dimension and Fermi energy level- Fermi - Dirac distribution function - heat capacity of electron gas - Fermi- Dirac distribution effect on the electrical conductivity - Thermo ionic emission - Photoelectric effect of metals - Crystal defects- Point imperfection (impurities- Schottky defect and Frenkel defect) - Diffusion- color centers- Line imperfections - dislocations.</p>
+<p><strong>Reference:</strong></p>
+<p><strong>-</strong> Elementary solid state physics ,Omar</p>
+<p>- Solid state physics , A.J. Dekker</p>
+<p class="course">PHYS322 Ultrasonic Waves: </p>
+<p> 2 Credit hrs. Lecture </p>
+<p>Prerequisites Courses: PHYS213</p>
+<p>Fundamentals of ultrasonic waves - Equation of sound wave - Acoustic parameters - acoustic impedance - Acoustic intensity-acoustic power - Reflection and transmission of ultrasonic waves on boundary at normal incidence and oblique incidence - Mode conversion attenuation of ultrasonic waves - Ultrasonic transducers - Piezoelectric transducer - Magnetostriction transducer - Fringes of ultrasonic waves - Ultrasonic cavitation - Factors affecting ultrasonic cavitation intensity - High intensity ultrasonic applications (cleaning - Electroplating - Aerosol production - Welding metals - Chemical reactions - Emulsification - Homogeneous distribution) - Low intensity ultrasonic applications (elastic parameters - velocity of a moving fluid by different methods - viscosity measurements).</p>
+<p><strong>Reference:</strong></p>
+<p>- "Ultrasonic", by Benson Carlin.</p>
+<p class="course">PHYS323 Environmental Physics: </p>
+<p>2 Credit hrs. Lecture </p>
+<p>Prerequisites Courses: PHYS101</p>
+<p>Heat transfer - Thermal radiation - Solar energy and it's technology - Molecular absorption of electromagnetic waves - The earth's thermal environment - Green house phenomenon - Effect of nuclear explosions - Water vapor and humidity - Environmental pollution - Ozon layer - Air pollutant - Noise and light pollution- Effect of different radiation on humans - Radiation protection.</p>
+<p><strong>References:</strong></p>
+<p>- Principle of Environmental physics by,Moneteith,J.L and Unsworth M.</p>
+<p class="course">PHYS324 Solid State Physics (2): </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS321 </p>
+<p>Band theory of solids- Bloch theorem- Kronig Penny model - Effective mass - Velocity and acceleration of electrons in solids - Brillouin zones - Classification of solids: conductors - Semiconductors and insulators - Intrinsic and extrinsic semiconductors - energy bands of electrons for intrinsic and extrinsic semiconductors - Fermi energy level - Carriers concentration in intrinsic and extrinsic semiconductors - Effect of temperature on semiconductor resistivity - Mobility and electrical conduction of intrinsic and extrinsic semiconductors motion of electrons in a magnetic field and Hall effect - Contact phenomenon: contact between two different metals - Metal -semiconductor contact - P-n semiconductors junction - Rectification properties of p-n junction and its applications - Zener diode - Photodiode - Tunnel diode and transistors.</p>
+<p><strong>References:</strong></p>
+<p><strong>-</strong> Elementary solid state physics ,Omar.</p>
+<p>- Solid state physics , A.J. Dekker.</p>
+<p>- Introduction to solid state physics , Charles Kittel.</p>
+<p class="course">PHYS325 Solid State Physics: </p>
+<p>3 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS231 </p>
+<p>Basis of crystal structure - One dimensional lattice - Two dimensional lattice - Three dimensional crystal lattice - Primitive cell and unit cell - Symmetry operations - crystal lattice systems - Bravais lattice - Miller indices - Examples of the crystal structures - Identification of the crystal structure by x- ray diffraction - Bragg's law- electrons diffraction - Neutrons diffraction - Diffraction methods for crystal structure analysis (Laue method - powder method - rotation method) - Crystal binding - Crystals of inert gases - Van der Waals interaction - repulsive energy- Attraction energy - Ionic - Metallic - Energy and Modelung constant- Covalent crystals - Metal crystals- Hydrogen energy bonded crystals - Thermal properties of solids - Heat capacity - Classical theory - Einstein theory - Cebye theory - Heat capacity of conduction electrons in metals - Phonons - thermal conductivity of solids - Thermal expansion - Free electron theory of metals - Drude and Lorentz classical theory - Summerfield quantum theory - Electrical conductivity and Ohm's law Wiedmann and Franz ratio - Energy levels and density of orbital in one dimension - Density of orbital in three dimension and Fermi energy level - Fermi - Dirac distribution function - Heat capacity of electron gas - Fermi - Dirac distribution effect on the electrical - Band theory of solids- Bloch theorem- Kronig Penny model- effective mass - Velocity and acceleration of electrons in solids - Brillouin zones- Classification of solids: conductors - Semiconductors and insulators - Intrinsic and extrinsic semiconductors - Energy bands of electrons for intrinsic and extrinsic semiconductors - Fermi energy level- Carriers concentration in intrinsic and extrinsic semiconductors- Effect of temperature on semiconductor resistivity - Mobility and electrical conduction of intrinsic and extrinsic semiconductors motion of electrons in a magnetic field and Hall effect - Contact phenomenon: contact between two different metals - Metal-semiconductor contact - P-n semiconductors junction - Rectification properties of p-n junction and its applications - Zener diode - photodiode - Tunnel diode and transistors.</p>
+<p><strong>References:</strong></p>
+<p><strong>-</strong> Elementary solid state physics ,Omar.</p>
+<p>- Solid state physics , A.J. Dekker.</p>
+<p>- Introduction to solid state physics , Charles Kittel.</p>
+<p class="course">PHYS331 Nuclear Physics (1): </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical </p>
+<p>Prerequisites Courses: PHYS231 </p>
+<p>Principal nuclear properties – Binding energy – Natural and artificial nuclear disintegration – Production of nuclear isotopes by nuclear bombardment – Chain disintegration – Different types of equilibrium – Radioactive decay law – Radioactive decays (γ decay – internal conversion - α decay - β decay)- Neutrino hypothesis –electron capture – Interaction of γ rays with matter – Nuclear detectors.</p>
+<p><strong>References:</strong></p>
+<p>- Nuclear physics by I. Kaplan</p>
+<p class="course">PHYS332 Accelerators: </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS331 </p>
+<p>The Cockcroft – Walton machine – The electrostatic generator or Van de Graaff machine – The cyclotron – The frequency-Modulated cyclotron or synchrocyclotron – The acceleration of electrons - The betatron and electron synchrotron – The proton synchrotron – Linear accelerators – The alternating-gradient synchrotron – Colliding accelerator.</p>
+<p><strong>References:</strong></p>
+<p>- Nuclear physics and nuclear reactor by A.Klimov.</p>
+<p>- Nuclear physics, an introduction by SB Patel.</p>
+<p class="course">PHYS333 Plasma Physics: </p>
+<p>2 Credit hrs. Lecture </p>
+<p>Prerequisites Courses: PHYS231 </p>
+<p>Definition of plasma – Plasma temperature and particle energy – Motion of a charged particle in an electromagnetic field – Particle drift in a (diverging – converging oscillating) magnetic field.</p>
+<p><strong>References:</strong></p>
+<p><strong>-</strong> Introduction to plasma physics and controlled fusion by F.Chen.</p>
+<p>- Introduction to plasma theory by D.R. Nichlson.</p>
+<p class="course">PHYS334 Gamma spectroscopy: </p>
+<p>2 Credit hrs. Lecture </p>
+<p>Prerequisites Courses: PHYS331 </p>
+<p>Decay schemes for radioactive nuclei – Selection rules for γ transitions – Scintillation detectors – Semi conductor detectors – Components of a single γ- ray spectrometer - Calibration and resolution – Types of spectra.</p>
+<p><strong>References:</strong></p>
+<p>-spectroscopy by K.Sigban.</p>
+<p>- T.Sovlfanidis N., "Measurements and detection of radiation", 1983.</p>
+<p class="course">PHYS341 Quantum Mechanics (1): </p>
+<p>2 Credit hrs. Lecture</p>
+<p>Prerequisites Courses: PHYS241 </p>
+<p>A historical introduction (Theories and Experiments) – Modern Quantum Theory – Assumption in Quantum Theory – Operators – Hermethien Operators – Schrodinger Equations in one and three dimensions – Properties of Schrodinger’s Equation – Orbital Angular Momentum and interrelated relations – Applications on Quantum Mechanics (Infinite Well) – (Quantum Well). Scattering of particles from Potential Barrier - Scattering of particles from finite potential barrier.</p>
+<p><strong>References:</strong></p>
+<p><strong>-</strong> Quantum Mechanics by Hisberg and Remick.</p>
+<p>- Modern physics and quantum mechnics by Anderson.</p>
+<p class="course">PHYS342 Statistical Physics : </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS242 </p>
+<p>Basic and supplementary energy states – Micro and Macro states – Thermodynamic probabilities (Maxwell - Boltzman Probabilities – Fermi- Dirac Probabilities – Bose – Einstein Probabilities ) – Fermi-Dirac Statistics – Statistics of Entropy – Partition Function - Using Partition Function to solve general Constants of Materials – Applications of Material in its different states.</p>
+<p><strong>References:</strong></p>
+<p><strong>-</strong> Statistical physics by F.Reif.</p>
+<p>- Thermodynamics,and Statistical mechanics by Addison-wesly (1972).</p>
+<p class="course">PHYS343 Electrodynamics: </p>
+<p>2 Credit hrs. Lecture </p>
+<p>Prerequisites Courses: PHYS241 </p>
+<p>Maxwell Equation of Electromagnetic waves – Maxwell Equation of Free Space – Solution of Maxwell Equation using Potential – Gig Conversion – Lawrence Condition and Potential Equation- Law of Energy Conservation in Electromagnetic field (Ponting Theory) – General solution of Maxwell Equation in space – General Equation of Waves – Electromagnetic waves in disconnecting media – Polarization - Conditions of neighboring media – Reflection and Refraction Law in Electromagnetic field - Electromagnetic in Conducting Media – Directed and hollow waves - Relativistic form of electrodynamics.</p>
+<p><strong>References:</strong></p>
+<p>- Introduction to electrodynamics by David J.</p>
+<p class="course">PHYS351 Electronics (1): </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS251 </p>
+<p>A.C. circuits: Waveform shapes - Effective value - Voltage and current in R - L - C- power and power factor correction - Complex numbers - Conduction in series and parallel in A.C. circuits - Resonance circuits - Four-Terminal Network: - Z-parameters - h-parameters - y-parameters - Equivalent circuits: integrator and differentiator circuits - Low pass and high pass filters - Frequency response - Oscilloscope. Theory of energy levels: n-type semiconductor and p-type semiconductor - Fermi level - Acceptor and donor energy levels - Current carriers and life time - Electric conduction in semiconductors.<br/>
+<strong>References:</strong></p>
+<p>- "Integrated electronics: analog and digital circuits and systems" By: Jacob Millman, Mc Graw-Hill Inc. Japan.</p>
+<p>- "Applied electricity for engineers" By: Boris Kuznetsov, Mir Publishers-Moscow.</p>
+<p class="course">PHYS352 Electronics (2): </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS351 </p>
+<p>P-N junction diode - Forward and reverse bias - Characteristic curve - Zener diode - tunnel diode - Photo diode and photo emission- Half and full wave rectification - Filters - BJT as four terminal network for small signals - Equivalent circuit of bipolar transistor - Some application of BJT transistor - Transistor as a current and voltage amplifiers - Field effect transistor: operation principle- Transistor parameters - Characteristic curves -Feedback- Oscillators - Operational amplifier - Some of their characteristics and applications.</p>
+<p><strong>References:</strong></p>
+<p>- "Integrated electronics: analog and digital circuits and systems" By: Jacob Millman, Mc Graw-Hill Inc. Japan.</p>
+<p class="course">PHYS353 Electronics: </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical </p>
+<p>Prerequisites Courses: PHYS251 </p>
+<p>P-N junction diode - Forward and reverse bias - Characteristic curve - Zener diode- Tunnel diode - Photo diode and photo emission - Half and full wave rectification - Filters - BJT as four terminal network for small signals - Equivalent circuit of bipolar transistor - Some application of BJT transistor - Transistor as a current and voltage amplifiers - Transistor parameters - Characteristic curves – Feedback – Oscillators - Operational amplifier - Some of their characteristics and applications.</p>
+<p><strong>References:</strong></p>
+<p>- "Integrated electronics: analog and digital circuits and systems" By: Jacob Millman, Mc Graw-Hill Inc. Japan.</p>
+<p class="course"><strong><u>PHYS411 Laser's physics and its applications:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS311</p>
+<p>Simulated and spontaneous emissions – Einstien's equations - Amplification in an active medium and growth of a laser beam – Optical resonator theory – Methods of producing inverted population – Energy level diagram for lasing action – Two, three ,four level systems – types of lasers lasers (gas lasers , semiconductors lasers, molecular laser, high power lasers ) – Properties of laser beam – Losses and its types - Laser gain – Single mode operation – Optical feed back – Laser applications such as ( industrial applications, medical applications, military applications, daily applications, scientific research applications, special applications).</p>
+<p><strong>References:</strong></p>
+<p>- Laser fundamentals by W.T. Silfvast, Campridge</p>
+<p class="course"><strong><u>PHYS412 Molecular Spectroscopy:</u></strong></p>
+<p>2 Credit hrs. Lecture</p>
+<p>Prerequisites Courses: PHYS311 </p>
+<p>Electromagnetic radiation – The interaction of electromagnetic radiation with atom &amp; molecules – Microwave rotational spectra – Rotational molecules – Rotational spectra of diatomic molecules – Polyatomic molecules at its spectra – Techniques and instrumentation – Infra red spectroscopy – Vibrating diatomic molecules – Vibrational – Rotational spectra – Techniques and instrumentation.</p>
+<p><strong>References:</strong></p>
+<ul>
+<li><p>"Fundamentals of Molecular Spectrosopy", C.N Banwell, MC Graw-Hill Book Company (uk) Limited.</p></li>
+<li><p>"Introduction to Molecular Spectrosopy", G.M. Barraw, MC Graw-Hill international Book Company.</p></li>
+</ul>
+<p class="course"><strong><u>PHYS421 Materials Science (1):</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS324 or PHYS325 </p>
+<p>Mechanical properties: the stress- the strain - Types of stress- Hock's law and elasticity factors (linear and volumetric elasticity) - Tension tests- Stress strain curve for metals - Stress strain relation for low carbon materials - Creep tests- Factors affecting creep and fatigue. Optical properties: light as an electromagnetic waves and photons - Light intensity - refractive Index - Dielectric constant - Optical conductivity - Absorption of light and absorption coefficient- Reflectivity- Transmission- Calculation of the optical constants - Transition in fundamental absorption edge- Permissible and non permissible transition - Direct and indirect transition- Absorption by excetons - Absorption by impurities - Absorption by free carriers. Thermal properties: Lattice motion – phonons - thermal conductivity by different methods - Heat transfer in insulators - Thermal properties in solids - Heat transfer by different methods- Instantaneous thermal conduction - Thermal diffusion coefficient - Thermal expansion in solids.</p>
+<p><strong>References:</strong></p>
+<p>- "Material science and engineering", an introduction by WilliamD, Callisters.</p>
+<p class="course">PHYS422 Magnetic Resonance: </p>
+<p>2 Credit hrs. Lecture </p>
+<p>Prerequisites Courses: PHYS324 or PHYS325 </p>
+<p>The resonance phenomenon - Electron's spin and spin magnetic moment - Energy of free electron in a magnetic field - Electron paramagnetic resonance spectrum - Hamiltonian and wave function - The complete Hamiltonian operator - The Zeeman hyperfine spectrum - Spin-spin interaction in a crystal field - Spin - orbital angular coupling - Nuclear Zeeman effect - Theory of relation and line shapes - Electron spin echo - Neutron magnetic resonance NMR spectrum - Origin of spectrum - The chemical shift- The physical mechanism underlying chemical shift line multiplicity in NMR- Analysis of spin systems - The line-widths of the nuclear magnetic resonance spectra - Magnetic noise - The Bloch formulations.</p>
+<p><strong>References:</strong></p>
+<ul>
+<li><p>"Electrons spin resonance theory &amp;applications", by N.M.A. theraton (1973).</p></li>
+</ul>
+<p class="course">PHYS423 Solar Energy: </p>
+<p>2 Credit hrs. Lecture </p>
+<p>Prerequisites Courses: PHYS321 or PHYS325 </p>
+<p>Energy sources - sun as an energy source - Sunlight - Semiconductor principles - Optical and photoelectrical properties of semiconductors – Photo static effect - Low resistivity materials- Dember photo effect – Photoconductivity - Photovoltaic effect in p-n junction and p-n hetero junction (junction capacity and depletion width - characteristics - V<sub>oc</sub> - J<sub>sc</sub> - efficiency) - Metal semiconductor junction - Conversion of solar energy into electricity - Photovoltaic effect - The solar cell and it's fabrication - Examples of p-n junction and p-N hetero junction solar cells - Photosensitive – Photo emissive – Photo galvanic – photo magnetic) - Indirect energy conversion into electricity (Through a heat stage - through a chemical stage - Photosynthesis).</p>
+<p><strong>References:</strong></p>
+<p>- "Solar energy conversion", by Richard C.</p>
+<p class="course">PHYS424 Nanotechnology: </p>
+<p>2 Credit hrs. Lecture </p>
+<p>Prerequisites Courses: PHYS321 or PHYS325 </p>
+<p>A brief history of nano revolution - Classes of nanostructure materials - Synthetic strategies- Size control - Shape control - Physical properties of nano materials - Chemical properties of nano sited materials - Methods of preparation of nano materials- Chemical methods- Physical methods - Nano materials characterization - X-ray characterization of nano particles - Scanning electron microscope - Field emission electron microscope - transmission electron microscope - Atomic force microscope - Scanning tunneling microscope - Fourier transformation infrared spectrometry - Raman spectroscopy - X- ray fluorescence (XRF) - X- ray photoelectron spectroscopy (XPS) - Energy dispersive x- ray spectrometry (EDS).</p>
+<p class="course">PHYS425 Physics of Amorphous Materials: </p>
+<p>2 Credit hrs. Lecture </p>
+<p>Prerequisites Courses: PHYS324 or PHYS325 </p>
+<p>Polymers and plastics - Methods of preparation of polymers - Examples of polymers - Ceramics - Dielectric constants of different polymers - The properties of ceramics – Piezoelectricity – Ferro electricity - Ferromagnetism ferrites and superconductors - Liquid crystals- Electrolytes - Fiber optics - Fiber glasses - Silicon and amorphous semiconductors - Synthesized materials.</p>
+<p><strong>References:</strong></p>
+<p>- "Amorphous semiconductor".</p>
+<p class="course">PHYS426 Materials Science (2): </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical </p>
+<p>Prerequisites Courses: PHYS421 </p>
+<p>Electrical properties of the materials - Equilibrium state of the electronic gas in conducting materials in absence of the electric field - Deviation of the electron in presence of the electric field - Relaxation time and mean Free path - Specific conductance in conductors - Electrical conductivity in ideal gas and non ideal gas - Widman Lorentz law - Dependence of free carriers on temperature - Electrical conductivity in pure metal – Alloys and extrinsic semiconductor - Magnetic properties of materials - Origin of magnetic phenomena - Classification of magnetic materials - Magnetic moment of electrons - Classical paramagnetic theory - Paramagnetic materials - Magnetization curve - Magnetic domain - Exchange energy – anti Ferro magnetism - Super conductivity of material - Discovery of Superconductivity - Critical magnetic field - Zener effect - Heat capacity - Energy gap for supper conductors and its measurements - Isotopic effect - London equation - Bandon and Coops theory - Second type of superconductor currnel - Quantum magnetic fluctuation - High temperature superconductor - Mechanism of the High temperature superconductivity – Applications.</p>
+<p><strong>References:</strong></p>
+<p>Material science and engineering, an introduction by WilliamD, Callisters</p>
+<p class="course">PHYS431 Nuclear Physics (2): </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical </p>
+<p>Prerequisites Courses: PHYS331 </p>
+<p>Nuclear reactions and theories – effective cross section – nuclear forces – scattering in center of mass &amp; laboratory coardinates and the relation between them in an elastic scattering – nuclear models (shell model – liquid drop model – collective model).</p>
+<p><strong>References:</strong></p>
+<p>- Fujia Yang and Joseph H.Hamittan, "Modern Atomic and Nuclear Physics".1996.</p>
+<p>- I.S Hughes, "Elementary Particles", third edition 1991.</p>
+<p>-spectroscopy by K.Sigban.</p>
+
+<p class="course">PHYS432 Radiation Physics (1): </p>
+<p>2 Credit hrs. Lecture </p>
+<p>Prerequisites Courses: PHYS331</p>
+<p>Radiation sources: (fast electrons – Heavy charged particles – Electromagnetic radiation – neutrons ) – Radiation units - Interaction of radiation with matter ( interaction of heavy charged particles – fast electrons and neutrons ) – Radiation doses – External and internal hazards of radiation - Effective factors( time - distance – shielding ) – Protection from ionizing radiation and dealing with radioactive exposures such as to radioactive iodine and contamination of skin with radioactive substances – applications in medicine - Agriculture and industry.</p>
+<p><strong>References:</strong></p>
+<p>- "Elementary introduction to nuclear reactor" by S.E. Liver</p>
+<p class="course">PHYS433 Nuclear Reactors and Safety: </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS431</p>
+<p>Neutrons – Neutron reactions – Fission – Fission produced neutrons and cross section – Effect of neutron velocity on fission reaction – Neutron cycle – conservation of energy – Nuclear fission reactors – Components of a fission reactor ( fuel – moderator – cooler – control rods – safety rods –neutron reflector ) – Different types of reactors for electricity generation ( boiling water reactors – compressed water reactors – heavy water reactors – gaseous cooling reactors – graphite and water reactors ) – Research reactors – Breeding reactors – Neutron flux calculation – Calculating the critical size for a reactor - Logarithmic rate for the moderation of energy – Moderation power –Radiation dosimeters – Biological effects due to neutrons.</p>
+<p><strong>References:</strong></p>
+<p>- "Nuclear physics and nuclear reactors" by V.L.Lefi.</p>
+<p class="course">PHYS434 Radiation Physics (2): </p>
+<p>2 Credit hrs. Lecture </p>
+<p>Prerequisites Courses: PHYS432</p>
+<p>Biological effects of radiation – Interaction of radiation with cells – Effect of the radiation on the body and genes – Cosmic rays – Earth radiation – Radioactive sources used in medicine for diagnosis and therapy – Sources use in industry and wars – Radiation protection in medicine – Basic fundamentals for protection from opened and closed sources – Waste products: liquid - solid - and gases waste products and how to deal with them.</p>
+<p><strong>References:</strong></p>
+<p>- "Elementary introduction to nuclear reactor", by S.E. Liver.</p>
+<p class="course">PHYS441 Quantum Mechanics (2): </p>
+<p>2 Credit hrs. Lecture</p>
+<p>Prerequisites Courses: PHYS341</p>
+<p>Matrix Theory of Harmonic Oscillator – Central Potential and Hydrogen Atoms – Quantum Numbers – Angular Momentum of Electronics – Motion and Periodic table – Perturbation Theory independent of time – Application on Helium Atom – Perturbation dependent on time – Relativistic Schrodinger Equation – Klien-Gordon Equation<em>.</em></p>
+<p><strong>References:</strong></p>
+<p>- Quantum mechanics (Schiff).</p>
+<p>- Quantum mechanics by Greiner.</p>
+<p class="course">PHYS442 Elementary particle Physics: </p>
+<p>2 Credit hrs. Lecture</p>
+<p>Prerequisites Courses: PHYS331 </p>
+<p>Particles and anti-particles- Leptons- Quarks-Gluons- Hadrons- Electro-magnetic force- weak nuclear force- electroweak force- strong nuclear force- Grand Unified Theory (GUT) – Gravitational and Quantum Gravity – Super force – the Big Pang Theory- Conservation Laws (Lepton number-baryon number- charge conjugation – Strangeness) – Classification of Particles by: (interaction- decay product – speed of decay – spin – Isospin – Parity – charge conjugation – time reversal) – Quark model of baryons and mesons- The eightfold way – Four vectors – Strange particles.</p>
+<p><strong>References:</strong></p>
+<p>- An introduction to quarks and partons by F. E.Close.</p>
+<p>- Elementary particles by I.S.Hughes.</p>
+
+<p class="course">PHYS443 Mathematical Physics (2): </p>
+<p>2 Credit hrs. Lecture </p>
+<p>Prerequisites Courses: PHYS242</p>
+<p>Numerical Solution of differential Equations – Euler’s Method – Modified Euler’s Method – Picard’s Method – Numerical Integration – Trapezoidal Rule – Taylor’s Series Method – Runge –Kutta Method – Runge – Kutta Method for Second – order Differential Equation – Solving differential equations by Inverse operators – Strum – Liouville Theory of Differential equations Finite difference Mthods – Taylor’s Series (Numerical differentiation and integration) – Linear difference equations with constant coefficient – Laplace Transform.</p>
+<p><strong>References:</strong></p>
+<p><strong>-</strong> Computer methods for science and engineering. Robert L.Lafara, International text bookcomp.lim.(1973).</p>
+<p>- Mathematical methods for physicists, George Arfken (1970).</p>
+<p class="course"><strong><u>PHYS451 Logic Circuits:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS352 or PHYS353</p>
+<p>Digital techniques - number systems- logic gates - Boolean algebra and logic theorems - Carno maps - Integrated circuits - The basic logic gates circuits by using bipolar and unipolar transistors - Flip-Flops - Counters - 7-segment circuit and decoder driver circuit - Registers.</p>
+<p><strong>References:</strong></p>
+<ul>
+<li><p>"Integrated electronics: analog and digital circuits and systems" By: Jacob Millman, Mc Graw-Hill Inc. Japan.</p></li>
+</ul>
+<p class="course"><strong><u>PHYS171 General Biophysics (1):</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: -</p>
+<p>During the bio-Electric body-nervous system and Neuron- Voltage nerve- Heart rate- Making the brain-making the eye. X-ray diagnostic physics: the generation of X-ray and absorbed- X-rays. Radioactive sources used in nuclear medicine- The statistical aspects of nuclear medicine. Radioactive core instrumentation and medical applications: as Jaeger- tube replication photogravure- analyst with the high pulse- gamma camera- radiation doses in nuclear medicine. Prevention of radiation in medicine: natural and industrial sources of ionizing radiation- biological effects of ionizing radiation- units of radiation protection and nuclear medicine in its heat and cold applications in medicine: warming treatment using both- the way we communicate gases- infrared and radio waves, waves and waves over Almikronip Sound- the use of extremely low temperatures in medicine- keeping blood and tissue surgery and refrigeration. The use of light in medicine: characteristics of the Adwae and measurement units light- visible light applications in medicine- perspectives flexible optical fiber applications- ultraviolet and infrared in medicine- infrared imaging- Almicroscobate.</p>
+<p><strong>References:</strong></p>
+<p>- "Fundamentals of Ultrasonographic Techniques" By:  J.D Wicks  &amp; K.S. Howe.</p>
+<p>- "Aspects of Biophysics" By: William Hughes.</p>
+<p class="course"><strong><u>PHYS172 General Biophysics (2):</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS171</p>
+<p>The main energy and power within the body- Keeping energy in the body- Replacing the body energy- Labor and power systems essential to have thermal energy body. Physics eye and vision- Heralds a sense of vision and visual properties of private collection agents photo eye. Network member Adwae sensitive to eye- Species overall light receptors.And correction of vision defects- Eye lenses and efficient vision. Sound in medicine- General characteristics of voice- Reflection of sound waves- Alstioskub (stethoscope)- The body imaging ultrasound waves- Doppler effects- The physics of the ear and hear in- Hearing test- Deafness and audio assistance- Biophysics muscle Structural flexibility- The impact of loads on tonicity- Muscle tension- Dynamic blood. Hydraulic principle of force and its relationship to the filling of the heart. Heartfelt flow and blood pressure. landkest phenomenon. Bozail equation Bernoulli equation in relation to high blood pressure. Vital lung mechanics- Surface tension and lung suspended. The impact of detergent on the process of breathing. The relationship between force and air pressure and resistance during the process of breathing.</p>
+<p><strong>References:</strong></p>
+<p>- "Basic Physics and Technology of Medical Diaggnostic Ultrasound" By: M.Husse.</p>
+<p>- "Medical Physics" By: O. Glasser, J.R. Cameron &amp; J.Shofronick.</p>
+<p>-"Biomechanics Its Foundation &amp; Objectives" By: Y.C.Fung , N.Perrone &amp; M.Anliker.</p>
+<p class="course"><strong><u>PHYS271 Environmental and general Biophysics:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS172</p>
+<p>Study and the various functions of the body- The transfer of some ions and molecules in the cell membrane- Electromagnetic waves Living Catalog studies on the living cell- The flexibility of a living cell- The wife of live material of the cell- The cell surface energies- Biological effects of some areas- The transition and absorption- The physical foundations of the highlights of vital effects Vital clinical curative effects- Electromagnetic waves(non ionizing) spectrum of areas- Measuring vital resistance- The effects of low frequency- microwave radiation- The definition of environmental pollution- The types of environmental contaminants- Environmental pollution by radiation- Radioactive sources (solid and liquid) natural radioactive materials.</p>
+<p><strong>References:</strong></p>
+<p>- "Dielectric Behavior of Biological Molecules in Solution" By: Grant, R.J. Sheppard and G.P. South.</p>
+<p>- "Concepts of Radiation Dosimetry'By: Kase &amp; Nelson.</p>
+<p class="course"><strong><u>PHYS272 Biophysics Waves:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS271</p>
+<p>Wave mechanics- Physical properties- The properties of the center-Proliferation- The spread of the models sound like- Sound waves interact with biological tissue (Reflection - scattering - Refraction - Diffraction - Interference - Absorption)- The sound intensity in the tissue- The appointment of the severity of the sound echoed in the tissues- Applications of ultrasound in medical imaging using ultrasound. light waves: The nature and sources of light - Perspectives and X-ray and uses in medicine- And the deviation Polarization photogravure Appliances- Optical bio-medicine- Overlapping and coral and Refractive experience overlap Yang- Haegn theory- Quantum theory of the Bohr atom of hydrogen- Light dispersion and break it and use them to learn volumes Biological macromolecules- Activity optical phenomena are connotation of biophysical sound units used in lasers- UV radiation measurements of a voice- Acoustic generators- considerations of the physical audio-ray absorption.</p>
+<p><strong>References:</strong></p>
+<p>- "Introduction to Classical and Modern Optics" By: Meyer Arenot.</p>
+<p>- "Laser in Biology and Medicine" By: F. Hillenkamp, R. Partesi C.A. Sacchi.</p>
+<p class="course"><strong><u>PHYS273 Bio-Potential:</u></strong></p>
+<p>2 Credit hrs. Lecture</p>
+<p>Prerequisites Courses: -</p>
+<p>Flood of energy in the world of biological change in the free energy of chemical reactions under conditions Standard- of a system. A. T. B. And the transfer of the cell- Almitokondria, of a given. A. T. B cell- and breathing through oxidative Alphusfarh- Alblastaidat- construction and optical Alphusfarh optic- an enzyme- a construction to A. T. B. - The principle of osmosis circles chemical- protein, employment is vital to build chemical- construction h vital. D. N. And proteins- the cellular assembly installation.</p>
+<p><strong>References:</strong></p>
+<p>- "Aspects of Biophysics" By: William Hughes.</p>
+<p class="course"><strong><u>PHYS274 Thermodynamic of Biological Systems:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS101</p>
+<p>The first law of thermodynamics and its application to biological systems- The internal energy to work- First law, the inthalpy- the ideal situation- Applications to large molecules- Heat capacity- The survival of energy living organisms. Second law of thermodynamic: The entropy- Thermal energy- The same heat- Breaking protein- Third law and biology- Transitions and life. Gibbs free energy- Balanced situation- Shifting operations- Transition phase- The chemical potential- The ionic liquids- The ideal situation for large molecules- The impact of temperature on stable equilibrium- Chemical association of biological molecules. Application Gibbs free energy: Photosynthesis- osmosis pressure- Dunan balance- To move through the membrane- The interaction of enzymes- And aid dissolving the proteins- Their balance and their dynamics.</p>
+<p><strong>References:</strong></p>
+<p>- "Dielectric Behavior of Biological Molecules in Solution" By: Grant, R.J. Sheppard and G.P. South.</p>
+<p class="course"><strong><u>PHYS371 Bio statistics:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: -</p>
+<p>Concept of bio statistics – Central limit theorem – Methods of deviation, variance and standard deviation – Elementary probability – Probability distribution and types of statistical population – Hypothesis testing – Linear regression and correlation – Health bio statistic.</p>
+<p><strong>References:</strong></p>
+<p>- "Mathematical Methods in Physics Science" BY, Boas.</p>
+
+<p class="course">PHYS372 Electronics and electricity of Bio Systems: </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical </p>
+<p>Prerequisites Courses: PHYS251</p>
+<p>Some of basic theorems- High power transfer and Thevenin’s theorem- R, C, L circuits, filters and resonance- Current and voltage difference distribution - Equivalent electric circuits for bio membranes - Dielectric constant and bio applications - P-N junction - current rectifier - Transistors and current amplification current for biological applications.</p>
+<p><strong>References:</strong></p>
+<p>- "Integrated electronics: analog and digital circuits and systems" By: Jacob Millman, Mc Graw-Hill Inc. Japan.</p>
+<p>- "Applied electricity for engineers" By: Boris Kuznetsov, Mir Publishers-Moscow.</p>
+<p class="course"><strong><u>PHYS373 Molecular Spectroscopy and its Bio Applications:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS231</p>
+<p>Chemical systems: Atom – Molecules – Ultraviolet and visible absorption spectroscopy UV and visible absorption instrumentation (Radiation source wavelength control Sample containers – Detector – Recording or meter) – Applications of ultraviolet and visible absorption spectroscopy – Absorbing species, Absorption by organic compounds, absorbing by inorganic compounds, qualitative and quantitative analysis.</p>
+<p>Infrared absorption spectroscopy – Theory of infrared absorption - Infrared instrumentation – Sample handling – Application of infrared absorption spectroscopy.</p>
+<p>Magnetic resonance spectroscopy – Nuclear magnetic resonance (NMR) – Principle of NMR spectroscopy nuclear magnetic resonance spectrometer (the magnet – magnetic field sweep generator – Radiofrequency) – The absorption detector sample holder and sample probe sample preparation – Chemical shift (δ) – Spin-spin coupling identification of molecular structure by NMR imagine.</p>
+<p><strong>References:</strong></p>
+<p>- "Fundamentals of Optics" By: H.White &amp; F.Jenkins</p>
+<p class="course"><strong><u>PHYS374 Replacement of Vital:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: -</p>
+<p>Materials used in the alternative: Metals- Ceramics- Polymers hint of their Profile and chemical properties: The electrical characteristics of the materials vital alternative: a study of electrical properties in the field of static (Relations of electrostatic - Molecular ionization - and the relationship of the local area and Klacejus Musety - A consistent theory of isolation and molecular weight).General theory of relaxation. Different ways of measuring the electrical properties (such as fixed unarmed - and other types of resistance) of alternative materials. Mechanical properties of materials vital alternative. The basic properties of the materials used to measure hardness- fracture- fatigue- stress corrosion with the properties of the materials used in alternative materials. Response and body tissues after the replacement of the joints and organs- The interaction of bone with its alternative study how to form the roof line between the natural bone materials and install a replacement- The cause of the collapse of the stabilization alternative. Applications for metals as an alternative body interactions with metals and polymers and ceramics.</p>
+<p><strong>References:</strong></p>
+<p>- "Dielectric Behavior of Biological Molecules in Solution" By: Grant, R.J. Sheppard and G.P. South.</p>
+<p class="course">PHYS375 Quantum Mechanics and Biological Application: </p>
+<p><strong>2 Credit hrs. Lecture</strong></p>
+<p>Prerequisites Courses: PHYS241</p>
+<p>Modern Quantum Theory – Assumption in Quantum Theory – Operators – Hermethien Operators – Schrodinger Equations in one and three dimensions – Properties of Schrodinger’s Equation – Central Potential and Hydrogen Atoms - Applications on Quantum Mechanics (Infinite Well) – (Quantum Well). Scattering of particles from Potential Barrier - Scattering of particles from finite potential barrier – Evaluation of electronic energy level of diatomic molecule - Calculation of vibrational energy level for diatomic molecule – Study of rotational energy level for diatomic molecule.</p>
+<p><strong>References:</strong></p>
+<p>- "Introduction to Quantum Mechanics" By: Dick &amp; Wittke.</p>
+<p>- "Quantum Physics" By: Gasiorowicz.</p>
+<p class="course"><strong><u>PHYS376 Radio-Biophysics:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS331</p>
+<p>Atomic nucleus – Isotopes – Atomic mass unit – Elementary particles in radiotherapy – Natural radioactivity and radioactive series – Nuclear decay laws – Total exposure dose – Nuclear decay schemes – Radiation energy absorption – Population of radioactive decay products – Short lived progenies – Radioactive isotope production – Interaction of different kinds of radiation with biological tissues – Charged particle ranges in different media – Interaction of gamma rays with matter – Ionizing radiation detection.</p>
+<p><strong>References:</strong></p>
+<p>- "Concepts of Radiation Dosimetry" By: Kase &amp; Nelson.</p>
+<p>- "Medical Radiation Physics" By: Hendee.</p>
+<p class="course">PHYS377 Electronic Simulation of Bio Systems: </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical </p>
+<p>Prerequisites Courses: PHYS251</p>
+<p>Electronic operational amplifiers- uni-input circuit: voltage adder- current to voltage converter- integrator, differentiator and summing- Bi-input circuit: subtractor circuit- differential integrator- voltage follower - Non-linear circuits: comparator- electronic operational amplifier in simulation- Hook law; spiral and mass system –Analog calculus - Differential equations - Heart pulses simulator –Heart pulse filters – Filter oscillators - Listening evaluation simulating rhythm of adjusting nerve -Detector skin resistance galvanometer.</p>
+<p><strong>References:</strong></p>
+<ul>
+<li><p>"Integrated electronics: analog and digital circuits and systems" By: Jacob Millman, Mc Graw-Hill Inc. Japan.</p></li>
+</ul>
+<p class="course"><strong><u>PHYS378 Mathematical Biophysics:</u></strong></p>
+<p>2 Credit hrs. Lecture</p>
+<p>Prerequisites Courses: PHYS172</p>
+<p>Study of various bio physics model – Model of single and two rooms – Model depends on differential equations – Model of enzyme motion – Model fitting with experimental data – Mont carlo simulation – Bio physics mont carlo application.</p>
+<p><strong>References:</strong></p>
+<p>- "Mathematical Methods for Physicists" By: Arfke.</p>
+<p>- "Mathematical Methods in Physics Science" BY: Boas.</p>
+<p class="course">PHYS471 Bio-Mechanics: </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS375</p>
+<p>Study of the Bio mechanics for bones- Flow equation- Elasticity for the rigid bodies- Velocity of liquids- Elasticity and Viscosity for the elasticity viscous materials and its properties- Study and exam the mechanical properties for the elasticity viscous materials- The blood flow- Flow of the blood from the large to small intensity.</p>
+<p><strong>References:</strong></p>
+<p>- "Biophysics" By: Elsayed, Shamloula and Ebeid.</p>
+<p>- "Aspects of Biophysics" By: William Hughes.</p>
+<p class="course"><strong><u>PHYS472 Laser's Physics and its Bio Applications:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS373</p>
+<p>Laser beam – Types of lasers – Interact of laser beam with tissues – Sources of laser beam – Safety and dangerous of laser beam – Biological effects of laser beam – Methods of laser beam measurement – Applications of laser beam in medicine, chemistry and bio science – Evaluation of laser beam dangerous.</p>
+<p><strong>References:</strong></p>
+<p>- "Physical Principles of Ultrasonic Diagnosis " By: P.N.T. Wells.</p>
+<p>- "Concepts of Radiation Dosimetry" By: Kase &amp; Nelson.</p>
+<p>- "Medical Radiation Physics" By: Hendee.</p>
+<p class="course"><strong><u>PHYS473 Biophysics of The Nervous System:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS372</p>
+<p>Introduction- The composition and function of the nervous system- Physics is vital for nerve cells- Is a cell membrane- Moving chemical- Electric switch- Physics is vital for ion channels- Diverse ways of measuring the activity of nerve devices- A comprehensive theory- Sensory organs, neural networks- Learning and memory- Devices used in measuring the electrical activity of nerve cells- Registration inside and outside the cells- Control signals- poles- Error measurements methods- the analysis results.</p>
+<p><strong>References:</strong></p>
+<p>- "Biophysics" By: Elsayed, Shamloula and Ebeid.</p>
+<p>" -Fundamentals of Physics " By: HallidayResnick.</p>
+<p class="course"><strong><u>PHYS474 Conformal Radiotherapy:</u></strong></p>
+<p>2 Credit hrs. Lecture</p>
+<p>Prerequisites Courses: PHYS376</p>
+<p>Radiation dose units of measurement – Exposure and absorbed dose – Distribution of equal doses in tissue equivalents – Types of tissue equivalents – Radiation square and circular fields equivalent to rectangle fields – Percentage dose and back scattering – Tissue weighting factors – Radiation weighting factor – Dose tissue to air ratio – Dose tissue to tissue equivalent ratio – Patient body curvature effect on dose contours and determination – Tissue in homogeneity and its effect on dose contours – Wedge high energy degraders – Accumulated dose – Dose contours for different dual and triad mixed radiation fields – Manual addition of radiation fields – Radiation field directing devices – Determination of therapeutic radiation dose as a function of the percentage dose and Source-to-target distance – Receipt of determined therapeutic radiation dose – Determination of therapeutic radiation dose in terms of air percentage dose and source to pivot distance in target tissue – Correlation between percentage radiation dose and relative tissue to air dose.</p>
+<p><strong>References:</strong></p>
+<ul>
+<li><p>"Medical Radiation Physics" By: Hendee.</p></li>
+<li><p>"Radiation Dosimetry" By: Attix &amp; Roesch Tochilin.</p></li>
+</ul>
+<p class="course"><strong><u>PHYS475 Contact Cell Biophysics:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS377</p>
+<p>Overview of the cell signals-signals the cell fertilized during the early history of life- connected cells can be close or far apart- the three phases of the cell signals- reception- conversion- response- the reception of signal is to start response- the issues of The Chemical protein cause future change in the form of protein. The receptors are most of the plasma membrane proteins. The transfer corridors, the corridors carrying a signal from the receptors to the cell receptors. Phasfara proteins are the general method of regulation within the cell and transfer the predominantly technical reference.</p>
+<p><strong>References:</strong></p>
+<ul>
+<li><p>"Biophysics" By:Elsayed, Shamloula and Ebeid.</p></li>
+<li><p>"Aspects of Biophysics" By: William Hughes.</p></li>
+</ul>
+<p class="course"><strong><u>PHYS476 Biophysics of Membranes and Cell:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: BOT332</p>
+<p>The importance of biological tissue- To protect the cell- With optional communication Center- storage of materials inside the booths inside the living transport system Eng chemical- Biological membrane acquaintance. The molecular structure of membranes- biological activities: a model of fluid- dynamic model Almoszek is the biological membrane model- the models manufactured for the biology membrane lab- fat single membrane on the surface of water air- Allibozzomat fat black film, permeability of membranes and movement- The impact of both the temperature effect on the permeability effort nicknamed Permeability channels within the cell membrane.</p>
+<p><strong>References:</strong></p>
+<ul>
+<li><p>"Dielectric Behavior of BiologicalMolecules in Solution" By: Grant, R.J. Sheppard and G.P. Sou.</p></li>
+<li><p>"Biophysics" By: Elsayed, Shamloula and Ebeid.</p></li>
+</ul>
+<p class="course"><strong><u>PHYS477 Molecular Biophysics:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS375</p>
+<p>Energies and statistics in the living cell: Dynamics- Statistical and biological science - the theory of absolute rates of interactions - Roads have to be physical size and form of particles: Random movement and proliferation - Spreading factor measurement- Sedimentation method Poise have to be a way n factor deposition speed to be settling factor - Factor rotational spread and Refractive bilateral - Molecules strong vitality - The neighborhood chemistry - Transport active tissue Models -Photosynthesis - Transpiration</p>
+<p>References: </p>
+<ul>
+<li><p>"Aspects of Biophysics" By: William Hughes.</p></li>
+<li><p>"Dielectric Behavior of Biological Molecules in Solution" By: Grant, R.J. Sheppard and G.P. South</p></li>
+</ul>
+<p class="course"><strong><u>PHYS478 Biophysics Health:</u></strong></p>
+<p>2 Credit hrs. Lecture</p>
+<p>Prerequisites Courses: PHYS376</p>
+<p>Ionizing radiation: international bodies and international organizations interested in measurement of ionizing radiation. Dosimetry standards. Room ionization (open air absolute) standard. Measuring the radiation absorbed dose- kinetic energy flowing in the center Karma. Gamma radiation of the qualitative. Account absorbed doses of radioactive elements within the body of a beta or gamma radiation. Principal rules for the prevention of ionizing radiation- exposure of individuals in acts of radiation and the general public. Instrumentation doses personal scale enclave- the film badge- the measure doses fluorescence gases. Non-ionizing radiation: deal-ray laser tissues- sources and types of lasers- safety rules and the risks of lasers- vital to the effects lasers- laser measurement methods- standards protective- risk assessment and laser- some uses of lasers in medicine- chemistry and biosciences.</p>
+<p><strong>References:</strong></p>
+<ul>
+<li><p>"Laser in Biology and Medicine" By: F. Hillenkamp, R. Partesi C.A. Sacc.</p></li>
+<li><p>"Radiation Dosimetry" By: Attix &amp; Roesch Tochilin.</p></li>
+</ul>
+
+<p class="course"><strong><u>PHYS103 Basics of Computer Science (1):</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: -</p>
+<p>The design and functioning of hardware - computer structure - the fundamental terminology associated with computers – Deal with the well-known operating system – word – excel - power point and using internet in academic search.</p>
+<p class="course"><strong><u>PHYS104 Basics of Computer Science (2):</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: -</p>
+<p>Fortran definition - Simple FORTRAN 90 program - The numerical constant and variable-Mathematical expressions - Input and output sentences - The conditional sentences - the conditional loop - The logical expressions and the control sentences -Function principle and subroutines - Matrix definition - Form description or primary coordination - Letters and number implementation-program examples - Matrix methods - Evidence of some kinds - Advanced applications - Files implementation - Kind of statements and applications.</p>
+<p><strong>References:</strong></p>
+<ul>
+<li><blockquote>
+<p>Stephen j.Chapman,”Fortran 90/95 for scientists and engineers, Mc Graw Hill 1998,ISBN 0070119384.</p>
+</blockquote></li>
+</ul>
+<p class="course"><strong><u>PHYS261 Computer Architecture and Organization:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: -</p>
+<p>The basis of organization and designing - Input - Output and end - Computational programming of the arithmetical and logical processes - Input and output programming - Data transfer - Control memory - Designing algorithmic and arithmetical treatment - Non simultaneous database - Direct input memory - The hypothetical memory - Various treatments.</p>
+<p><strong>References:</strong></p>
+<p>- John L. Hennessy and David A. Patterson (2003). Computer Architecture: A Quantitative Approach, Third Edition, Morgan Kaufmann Publishers, Inc. ISBN 1558605967.</p>
+<p class="course"><strong><u>PHYS262 Fundamentals of Structure Programming:</u></strong> </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: -</p>
+<p>Constant and variables - Mathematical operators - Logical operators and relationships - complex operators - Input, output sentences and data forms - Comment sentences -Control structure - Repetitions sentences - Subroutines - Functions and implementation - matrices - Records - files - Repetition function - programming language.</p>
+<p><strong>References:</strong></p>
+<ul>
+<li><blockquote>
+<p>Stroustrup, Bjarne (2000). The C++ Programming Language, Special Edition, Addison-Wesley. ISBN 0201700735.</p>
+</blockquote></li>
+</ul>
+<p class="course"><strong><u>PHYS263 Data Structures and Algorithms:</u> </strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS262</p>
+<p>Abstract Data Types (ADT). Stacks: Definition and operations - Implementation of stacks with array and records - Applications of stacks. Queues: Definitions - Implementation of queues - Applications of queues. Linked lists: Singly linked lists - linked stacks - Linked queues - Doubly linked lists - Application of linked lists. Tree</p>
+<p>structures - binary trees: Binary tree traversals - Binary tree search. Searching algorithms - Sequential search. Sorting algoritms: insertion sort- Selection sort.</p>
+<p><strong>References:</strong></p>
+<p>- Stroustrup, Bjarne (2000). The C++ Programming Language, Special Edition, Addison-Wesley. ISBN 0201700735.</p>
+<p class="course"><strong><u>PHYS264 Object Oriented Programming:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS262</p>
+<p>Objects - Object classes - Deriving an object oriented design. Functional oriented design: Data flow diagrams - Structure charts – Inheritance - A design example - Data dictionaries - Deriving structure charts - Design examples - Concurrent systems design. User interface design: User interface design objectives - Interface metaphors - WIMP (Window, Icons, Menus, and Pointing) interfaces using color displays.</p>
+<p><strong>References:</strong></p>
+<p>- Schach, Stephen (2006). "Object-Oriented and Classical Software Engineering", Seventh Edition. McGraw-Hill 2006. ISBN 0073191264.</p>
+<ul>
+<li></li>
+</ul>
+<p class="course"><strong><u>PHYS265 File Organization and Processing:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS262</p>
+<p>File introduction - General view for filing - Sorting and external merging algorithm - Random access - Perfect scattering - File organization in structured tree - Multi key filing system - Invert files.</p>
+<p><strong>References:</strong></p>
+<p>- Alan L.Tharb ."File organization and processing", by Maloy lithographic 2007, ISBN 0471605212.</p>
+<p class="course"><strong><u>PHYS361 Database management system:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS263</p>
+<p>Overview of database administration - Data and autonomy - Building of database systems - Administration system of the database - Overview of DB2 - SQL language-Arithmetic and algebra relationships - Data definition - Viewing definition - Logical relationships of data.</p>
+<p><strong>References:</strong></p>
+<p>- Elmasri Navathe.” Fundamentals of Database Systems”, ISBN 0805317554, Addison Weseley 2000<em>.</em></p>
+<p class="course"><strong><u>PHYS362 Image Processing (1):</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS264</p>
+<p>The origins of digital image processing – examples of fields that use digital image processing- fundamental steps in digital image processing – components of an image processing system – elements of visual perception – light and the electromagnetic spectrum – image sensing and acquisition – image sampling and quantization – some basic relationships between pixels – linear and nonlinear operations – image enhancement in the spatial domain.</p>
+<p><strong>References:</strong></p>
+<p>- Rafael C.Gonzalez, Richard E.Woods, "digital image processing", India, 2002.</p>
+
+<p class="course"><strong><u>PHYS363 Computer Network:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: -</p>
+<p>The use of computer networks - Network architecture - the ISO reference model, examples of LAN networks. Network topology - TCP/IP - backbone design - local access network design. Data transmission- Transmission impairments -Channel capacity - Transmission media - Guided transmission - Unguided transmission -Multiplexing, Data encoding - The data link layer -Elementary data link protocols-flow control - Error detection- analysis of protocols -Wide area networks - packets and datagrams - Routing algorithms - flooding-satellite packet broadcasting. Local area networks - Examples of LAN networks - Ring LAN networks - Star LAN-Wireless networks - File transfer protocols - Distributed data base systems - distributed computations.</p>
+<p><strong>References:</strong></p>
+<p>- William Staillings . “Data and Computer Communication”, ISBN 0130843709, Printic Hall 2001.</p>
+<p class="course"><strong><u>PHYS364 Artificial Intelligence (1):</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS264</p>
+<p>Introduction to artificial intelligence concepts and definitions - knowledge acquisition and representation: Predicate Calculus - Structured Representations and Network Representations - State Space Search: trees and graphs. Heuristic search - model based reasoning - case-based reasoning, reasoning with uncertain or incomplete knowledge -Overview of AI languages: database - Overview of AI Application Areas - expert systems - artificial intelligence computers-relationship between the artificial intelligence and the synthetic nervous nets.</p>
+<p><strong>References:</strong></p>
+<p>- Floriana Esposito, Zbigniew W. Ras, Donato Malerba, ”Foundations of Intelligent Systems: 16th International Symposium, ISMIS 2006”, Italy, 2006, (Lecture Notes in ِArtificial Intelligent). ISBN: 354045764X.</p>
+<p>- Ivan Bratko, ”Prolog Programming for Artificial intelligent”, ISBN 0201403757, Addison-Wesley 2001.</p>
+<p class="course"><strong><u>PHYS365 Computer Graphics:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS264</p>
+<p>Introduction to computer Graphics - Overview of Graphics systems - Line drawing algorithms - Circle drawing algorithms - Ellipse drawing algorithms - Area filling algorithms - polygon filling algorithms - line clipping algorithms - Polygon clipping algorithms - Two dimensional transformations - (translation-rotation-scaling) general transformations-composite transformations); Three dimensional object representation and projections - three dimensional modeling and transformations(translation-rotation-scaling-sheer-reflection-composite) - Three dimensional Viewing and Camera Model.</p>
+<p><strong>References:</strong></p>
+<p>Bradley Kjell, "Vector Math for 3D Computer Graphics", 2003.</p>
+<p class="course"><strong><u>PHYS366 Algorithms design and analysis:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS263</p>
+<p>Overview of designing - analysis and complexes algorithm - General method - Double search method - Arrangement by choice - Shorter generated trees - Dynamic programming - Attributes method for searching in the trees - Method of the pursuit for the back - Octagonal files problem - Koke's theory.</p>
+<p><strong>References:</strong></p>
+<p>- Gilles Brassard and Paul Brately, “Algorithms theory and practice”, prantic hall international, 1988, 1SBN 013023169X.</p>
+<p class="course"><strong><u>PHYS367 System Design and Analysis:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS263</p>
+<p>Essential concepts - Definition (system - employee) - System analyzed- Data dictionary - English language assembly - Decision tree - Study of data - Design ways - The physical component for system design - Programming system - Files system - Determination of logical operations - Design and control program - Files and reports.</p>
+<p><strong>Reference:</strong></p>
+<p>- DeMarco, Tom. "Structured Analysis and System Specification" ISBN 0138543801</p>
+<p class="course"><strong><u>PHYS461 Modelling and Simulation:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS263</p>
+<p>Basic simulation modeling. Nature of simulation models - Building models &amp; simulation Simulation output data and stochastic processes - Validation of simulation models - Verification of simulation computer programs.Types of simulation models:discrete event simulation,continous simulation - Application in mathematical models - Stochastic simulation - application in stochastic simulation Simulation of a single-server queuing system - Simulation of random walk - Simulation of traffic movement - Statistical procedures for computing real-world observation &amp; simulation output data - Some practical considerations: Probability distributions - Random number generators - Generating random variables using of simulation software packages.</p>
+<p><strong>References:</strong></p>
+<ul>
+<li><p>Roger McHaney, ”Computer Simulation A practical Perspecive”, Academic Press,1999.</p></li>
+<li><p>Hamdy A. Taha, ”Operations Research”, Collier Macmillan Publishers,1989.</p></li>
+</ul>
+<p class="course"><strong><u>PHYS462 Image Processing (2):</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS362</p>
+<p>Image enhancement in the frequency domain – introduction to the Fourier transform and the frequency domain – smoothing frequency domain filters – sharpening frequency domain filters – image restoration – noise models – geometric transformation – color image processing – color fundamentals – wavelets processing – image compression – image segmentation.</p>
+<p><strong>References:</strong></p>
+<p>- Rafael C.Gonzalez, Richard E.Woods, "digital image processing", India, 2002.</p>
+<p class="course"><strong><u>PHYS463 Data Mining:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS361</p>
+<p>data mining concept - Inductive learning, Machine Learning - Differences between Data Mining and Machine Learning - Data Mining Models - Characteristics of a data warehouse - warehouse model - data mine problems - data mine applications - Data Mining Functions - Classification - Associations - Sequential/Temporal patterns - Clustering/Segmentation - Data Mining Techniques - Cluster Analysis - induction - deduction - decision tree - neural network - data visualization - data mining examples.</p>
+<p><strong>References:</strong></p>
+<p>- Morgan Kaufmann, "Data Mining: Concepts and Techniques", March 2006.</p>
+<p class="course"><strong><u>PHYS464 Wireless Network:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS363</p>
+<p>ٌRadio frequency spectrum.How simple wireless networks works - How data is ransmitted by waves - Antenna - Propagation modes - Satellite communication - Radio and television broadcasting - Cellular networks how cell phone connect the network,handoff - Power control - Celluar channel - Analog and digital mobile systems - TDMA - CDMA and GSMwireless lan technology - Blue tooth.</p>
+<p><strong>References:</strong></p>
+<p>- William Staillings. ”Wireless Network and Communication”, ISBN 0130843709, Printic Hall 2005.</p>
+<p class="course"><strong><u>PHYS465 Artificial Intelligence (2):</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS364</p>
+<p>Pattern recognition systems – sensing – segmentation and grouping – feature extraction – classification – the design cycle – data collection – feature choice – training – supervised learning – unsupervised learning – Baysian decision theory – minimum error rate classification – Bayes decision theory – missing and noisy feature – Baysian estimation – Baysian parameter estimation – multilayer neural networks.</p>
+<p><strong>References:</strong></p>
+<p>- Richard O.Duda, et.at, patter classification, Canada, 2001.</p>
+<p class="course"><strong><u>PHYS466 Computer Security:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS363</p>
+<p>Characteristics of computer intrusion - Points of security vulnerability - Methods of defense. Basic encryption and decryption, Secure encryption systems. The data encryption standard (DES) - Enhancing cryptographic security. Security involving programs: Information accesses problems - Viruses and worms - Controls against attack - Operating system control. Design of secure operating systems: Models of security - penetration of operating systems - Database security - Computer network security and communication security.</p>
+<p><strong>References:</strong></p>
+<p>- Deborab Russell, and G.T. Gangemi sr ,” Computer Security Basics <strong>“,</strong>Oreilly 2006, ISBN 0596006691.</p>
+<p class="course"><strong><u>PHYS467 Multimedia:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS362</p>
+<p>Multimedia Techniques - Screen resolution and screen technology - Video accelerator design system - Raster graphics (3D-transformation) - Analog-to-digital conversion - Video compression - Mixing and displaying at 30 FPS with full color capacity. Physics of Sound - Sound cards - Sound cards limitations - Mixing sound video and voice traffic control - Animation.</p>
+<p><strong>References:</strong></p>
+<p>- Multimedia Making it Work, by Tay Vaughan. Osborne McGraw Hill, 1993. ISBN 007881869.</p>
+
+<p class="course"><strong><u>PHYS468 Electronic Learning and digital Library:</u></strong> </p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: PHYS467</p>
+<p>Using of technology in learning - Distant learning - Site design - What is the digital library - Geographic region - Digital library and information community - Interaction and intercession integrity in digital library - Electronic publishing.</p>
+<p><strong>References:</strong></p>
+<p>- Greenstein, Daniel I., Thorin, Suzanne Elizabeth. The Digital Library: A Biography. Digital Library Federation (2002) ISBN 1933645180.</p>
+<p class="course"><strong><u>PHYS469 Selected Course in Computer:</u></strong></p>
+<p>2 Credit hrs. Lecture + 1 Credit hr. Practical</p>
+<p>Prerequisites Courses: -</p>
+<p>Course which are not included in the curriculum and seems to be needed should be suggested as an elective course by department.</p>
+
+
+</template>
+
+<script>
+  const viewer = document.getElementById("viewer"),
+        paper = document.getElementById("paper"),
+        vtitle = document.getElementById("vtitle"),
+        dlWord = document.getElementById("dlWord"),
+        menu = document.getElementById("menu"),
+        ddBtn = document.getElementById("ddBtn");
+  const originalTitle = document.title;
+  let currentTitle = "";
+
+  function setMenu(open) {
+    menu.classList.toggle("show", open);
+    ddBtn.setAttribute("aria-expanded", open);
+  }
+  function openDoc(b) {
+    const tpl = document.getElementById("tpl-" + b.dataset.doc);
+    paper.innerHTML = "";
+    paper.appendChild(tpl.content.cloneNode(true));
+    paper.dir = b.dataset.dir;
+    paper.lang = b.dataset.dir === "rtl" ? "ar" : "en";
+    currentTitle = b.dataset.title;
+    vtitle.textContent = currentTitle;
+    dlWord.href = b.dataset.file;
+    dlWord.setAttribute("download", b.dataset.file);
+    setMenu(false);
+    viewer.classList.add("open");
+    document.body.classList.add("viewing");
+    document.querySelector(".vscroll").scrollTop = 0;
+  }
+  function closeDoc() {
+    setMenu(false);
+    viewer.classList.remove("open");
+    document.body.classList.remove("viewing");
+    paper.innerHTML = "";
+  }
+
+  document.querySelectorAll(".btn[data-doc]").forEach(b => b.addEventListener("click", () => openDoc(b)));
+  document.getElementById("closeBtn").addEventListener("click", closeDoc);
+  ddBtn.addEventListener("click", e => { e.stopPropagation(); setMenu(!menu.classList.contains("show")); });
+  document.addEventListener("click", e => { if (!menu.contains(e.target)) setMenu(false); });
+  dlWord.addEventListener("click", () => setMenu(false));
+  document.addEventListener("keydown", e => { if (e.key === "Escape") viewer.classList.contains("open") ? closeDoc() : null; });
+
+  document.getElementById("printBtn").addEventListener("click", () => { setMenu(false); setTimeout(() => window.print(), 50); });
+  // File name suggested when saving as PDF = document title
+  window.addEventListener("beforeprint", () => { if (viewer.classList.contains("open")) document.title = currentTitle; });
+  window.addEventListener("afterprint", () => { document.title = originalTitle; });
 </script>
 </body>
 </html>
