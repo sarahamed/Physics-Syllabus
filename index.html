@@ -6,34 +6,29 @@
 <title>المحتوى العلمي (قسم الفيزياء)</title>
 <style>
   * { box-sizing: border-box; }
-  body {
-    margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+  body { margin: 0; min-height: 100vh; display: flex; flex-direction: column;
     font-family: "Segoe UI", Tahoma, Arial, sans-serif; color: #1b2a3a;
-    background: linear-gradient(180deg, #eaf1f8 0%, #f8fafc 100%);
-  }
-  header {
-    background: #fff; border-bottom: 5px solid #c9a227;
-    box-shadow: 0 2px 10px rgba(11,79,128,.12); padding: 20px 32px;
-  }
+    background: linear-gradient(180deg, #eaf1f8 0%, #f8fafc 100%); }
+  header { background: #fff; border-bottom: 5px solid #c9a227; box-shadow: 0 2px 10px rgba(11,79,128,.12); padding: 20px 32px; }
   .logos { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
-  .logos img { height: 130px; width: auto; }
+  .logos img { height: 130px; max-width: 100%; width: auto; }
   main { flex: 1; text-align: center; padding: 40px 16px; }
-  h1 {
-    display: inline-block; margin: 0 0 36px; padding-bottom: 12px;
-    color: #0b4f80; font-size: 2rem; border-bottom: 3px solid #c9a227;
-  }
+  h1 { display: inline-block; margin: 0 0 36px; padding-bottom: 12px; color: #0b4f80; font-size: 2rem; border-bottom: 3px solid #c9a227; }
   .links { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-  .links a {
-    width: 100%; max-width: 480px; padding: 16px 24px; color: #fff; text-decoration: none;
-    font-size: 1.1rem; font-weight: 600; border-radius: 10px;
-    background: linear-gradient(135deg, #0b4f80, #1a74b8);
-    box-shadow: 0 4px 12px rgba(11,79,128,.25); transition: transform .15s, box-shadow .15s;
-  }
-  .links a:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(11,79,128,.35); }
-  footer {
-    background: #0b3a5e; color: #cfdceb; padding: 10px 16px;
-    font-size: 11px; direction: ltr; text-align: left;
-  }
+  .btn { display: block; width: 100%; max-width: 480px; padding: 16px 24px; color: #fff; text-decoration: none; cursor: pointer;
+    font: 600 1.1rem "Segoe UI", Tahoma, Arial, sans-serif; border: 0; border-radius: 10px;
+    background: linear-gradient(135deg, #0b4f80, #1a74b8); box-shadow: 0 4px 12px rgba(11,79,128,.25); transition: transform .15s; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn.active { outline: 3px solid #c9a227; }
+  #preview { display: none; max-width: 1000px; margin: 36px auto 0; background: #fff; border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(11,79,128,.18); padding: 16px; }
+  #preview h2 { margin: 4px 0 12px; color: #0b4f80; font-size: 1.2rem; }
+  #frameWrap { position: relative; height: 75vh; min-height: 420px; border: 1px solid #d5dee8; border-radius: 8px; overflow: hidden; background: #f3f6fa; }
+  #frameWrap iframe { width: 100%; height: 100%; border: 0; }
+  #loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #55697d; }
+  #note { margin: 10px 0 0; font-size: .9rem; color: #55697d; }
+  #download { margin: 18px auto 4px; background: linear-gradient(135deg, #b8901a, #d9b13a); color: #1b2a3a; }
+  footer { background: #0b3a5e; color: #cfdceb; padding: 10px 16px; font-size: 11px; direction: ltr; text-align: left; }
 </style>
 </head>
 <body>
@@ -43,13 +38,47 @@
       <img src="physics_logo.jpeg" alt="قسم الفيزياء">
     </div>
   </header>
+
   <main>
     <h1>المحتوى العلمي (قسم الفيزياء)</h1>
     <div class="links">
-      <a href="syllabus_arb.pdf" target="_blank">المحتوى العلمي علوم (باللغة العربية)</a>
-      <a href="syllabus_eng.pdf" target="_blank">المحتوى العلمي علوم (باللغة الإنجليزية)</a>
+      <button class="btn" data-file="Syllabus_arb.doc" data-title="المحتوى العلمي علوم (باللغة العربية)">المحتوى العلمي علوم (باللغة العربية)</button>
+      <button class="btn" data-file="Syllabus_eng.doc" data-title="المحتوى العلمي علوم (باللغة الإنجليزية)">المحتوى العلمي علوم (باللغة الإنجليزية)</button>
     </div>
+
+    <section id="preview">
+      <h2 id="pTitle"></h2>
+      <div id="frameWrap">
+        <div id="loading">جارٍ تحميل المعاينة...</div>
+        <iframe id="frame" title="معاينة الملف"></iframe>
+      </div>
+      <p id="note">إذا لم تظهر المعاينة يمكنك تحميل الملف مباشرة من الزر بالأسفل.</p>
+      <a id="download" class="btn" download>⬇ تحميل الملف (Word)</a>
+    </section>
   </main>
+
   <footer>created by Sara Hamed</footer>
+
+<script>
+  const buttons = document.querySelectorAll(".btn[data-file]");
+  const preview = document.getElementById("preview");
+  const frame = document.getElementById("frame");
+  const loading = document.getElementById("loading");
+  const dl = document.getElementById("download");
+
+  buttons.forEach(b => b.addEventListener("click", () => {
+    buttons.forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    const fileUrl = new URL(b.dataset.file, location.href).href;
+    document.getElementById("pTitle").textContent = b.dataset.title;
+    dl.href = fileUrl;
+    dl.setAttribute("download", b.dataset.file);
+    loading.style.display = "flex";
+    frame.onload = () => { loading.style.display = "none"; };
+    frame.src = "https://view.officeapps.live.com/op/embed.aspx?src=" + encodeURIComponent(fileUrl);
+    preview.style.display = "block";
+    preview.scrollIntoView({ behavior: "smooth", block: "start" });
+  }));
+</script>
 </body>
 </html>
