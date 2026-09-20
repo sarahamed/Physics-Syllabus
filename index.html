@@ -22,7 +22,6 @@
     font: 600 1.1rem "Segoe UI", Tahoma, Arial, sans-serif; border: 0; border-radius: 10px;
     background: linear-gradient(135deg, #0b4f80, #1a74b8); box-shadow: 0 4px 12px rgba(11,79,128,.25); transition: transform .15s; }
   .btn:hover { transform: translateY(-2px); }
-  a.btn { text-decoration: none; text-align: center; }
   .btn[aria-expanded="true"] { outline: 3px solid #c9a227; outline-offset: 2px; }
   footer { background: #0b3a5e; color: #cfdceb; padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); font-size: 11px; direction: ltr; text-align: left; }
 
@@ -52,6 +51,12 @@
   .paper .course u, .paper .doctitle u { text-decoration: none; }
   .paper ul { margin: 0 0 .8em; padding-inline-start: 1.4em; }
 
+  .paper.pdf { padding: 12px; background: #dfe7f0; text-align: center; border-radius: 0 0 12px 12px; }
+  .pdfpage { position: relative; width: 100%; max-width: 1100px; margin: 0 auto 10px; background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,.2); }
+  .pdfpage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .pdfmsg { padding: 28px 12px; color: #55697d; text-align: center; line-height: 1.8; }
+  .pdfmsg a { color: #0b4f80; font-weight: 600; }
+
   @media (max-width: 700px) {
     header { padding: 12px 14px; border-bottom-width: 4px; }
     .logos img { height: 78px; }
@@ -63,6 +68,7 @@
     .ptitle { font-size: .8rem; }
     .pbar button { padding: 8px 10px; font-size: .82rem; }
     .paper { padding: 16px 14px; font-size: .95rem; line-height: 1.85; }
+    .paper.pdf { padding: 6px; }
     .paper .doctitle { font-size: 1.2rem; }
     .paper .course { font-size: 1.02rem; }
     .menu { min-width: 200px; }
@@ -127,7 +133,22 @@
           <article class="paper"></article>
         </section>
       </div>
-      <a class="btn" href="syllabus_edu_old.pdf" download="المحتوى العلمي تربوي (نظام قديم).pdf">المحتوى العلمي تربوي (نظام قديم)</a>
+      <div class="item" id="item-edu">
+        <button class="btn" aria-expanded="false" data-doc="edu" data-type="pdf" data-file="syllabus_edu_old.pdf" data-title="المحتوى العلمي تربوي (نظام قديم)" data-dir="ltr">المحتوى العلمي تربوي (نظام قديم)</button>
+        <section class="panel" hidden>
+          <div class="pbar">
+            <button class="pclose" type="button">✕ إغلاق</button>
+            <span class="ptitle">المحتوى العلمي تربوي (نظام قديم)</span>
+            <div class="dd">
+              <button class="ddBtn" type="button" aria-haspopup="true" aria-expanded="false">⬇ تحميل ▾</button>
+              <div class="menu">
+                <a class="dlWord" href="syllabus_edu_old.pdf" download="المحتوى العلمي تربوي (نظام قديم).pdf">📄 تحميل PDF</a>
+              </div>
+            </div>
+          </div>
+          <article class="paper"></article>
+        </section>
+      </div>
     </div>
   </main>
 
@@ -1465,6 +1486,88 @@
   const originalTitle = document.title;
   const items = document.querySelectorAll(".item");
 
+  // ---------- PDF preview (pdf.js loaded on demand) ----------
+  const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+  let pdfJsPromise = null, pdfToken = 0, pdfState = null;
+
+  function loadPdfJs() {
+    if (pdfJsPromise) return pdfJsPromise;
+    pdfJsPromise = new Promise((resolve, reject) => {
+      const sc = document.createElement("script");
+      sc.src = PDFJS + "pdf.min.js";
+      sc.onload = () => { pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + "pdf.worker.min.js"; resolve(pdfjsLib); };
+      sc.onerror = () => { pdfJsPromise = null; reject(new Error("pdf.js failed to load")); };
+      document.head.appendChild(sc);
+    });
+    return pdfJsPromise;
+  }
+
+  function stopPdf() {
+    pdfToken++;
+    if (pdfState) {
+      try { pdfState.io.disconnect(); } catch (e) {}
+      try { pdfState.doc.destroy(); } catch (e) {}
+      pdfState = null;
+    }
+  }
+
+  async function drawPage(w, state) {
+    if (w._busy || w._done) return;
+    w._busy = true;
+    const gen = w._gen = (w._gen || 0) + 1;
+    try {
+      const page = await state.doc.getPage(+w.dataset.n);
+      const base = page.getViewport({ scale: 1 });
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const scale = (w.clientWidth * dpr) / base.width;
+      const vp = page.getViewport({ scale });
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.floor(vp.width); canvas.height = Math.floor(vp.height);
+      await page.render({ canvasContext: canvas.getContext("2d"), viewport: vp }).promise;
+      if (state !== pdfState || gen !== w._gen) return;   // closed or scrolled away meanwhile
+      w.appendChild(canvas);
+      w._done = true;
+    } catch (e) { /* ignore render errors for a single page */ }
+    finally { w._busy = false; }
+  }
+
+  function clearPage(w) {
+    w._gen = (w._gen || 0) + 1;
+    w._done = false;
+    const c = w.querySelector("canvas");
+    if (c) { c.width = 1; c.height = 1; c.remove(); }   // free memory on phones
+  }
+
+  async function showPdf(paper, file) {
+    stopPdf();
+    const token = pdfToken;
+    paper.classList.add("pdf");
+    paper.innerHTML = '<p class="pdfmsg">جارٍ تحميل الملف... (ملف كبير، قد يستغرق بعض الوقت)</p>';
+    try {
+      const lib = await loadPdfJs();
+      const doc = await lib.getDocument({ url: file }).promise;
+      if (token !== pdfToken) { doc.destroy(); return; }
+      const first = await doc.getPage(1);
+      const vp = first.getViewport({ scale: 1 });
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(en => en.isIntersecting ? drawPage(en.target, pdfState) : clearPage(en.target));
+      }, { rootMargin: "1500px 0px" });
+      pdfState = { doc, io };
+      paper.innerHTML = "";
+      for (let i = 1; i <= doc.numPages; i++) {
+        const w = document.createElement("div");
+        w.className = "pdfpage";
+        w.style.aspectRatio = vp.width + " / " + vp.height;
+        w.dataset.n = i;
+        paper.appendChild(w);
+        io.observe(w);
+      }
+    } catch (e) {
+      if (token !== pdfToken) return;
+      paper.innerHTML = '<p class="pdfmsg">تعذّر عرض الملف هنا.<br>يمكنك تحميله من زر <strong>⬇ تحميل</strong> بالأعلى، أو <a href="' + file + '" target="_blank">فتحه في تبويب جديد</a>.</p>';
+    }
+  }
+
   function closeMenus() {
     document.querySelectorAll(".menu.show").forEach(m => {
       m.classList.remove("show");
@@ -1477,7 +1580,10 @@
     item.classList.remove("open");
     item.querySelector(".btn").setAttribute("aria-expanded", "false");
     item.querySelector(".panel").hidden = true;
-    item.querySelector(".paper").innerHTML = "";
+    stopPdf();
+    const pp = item.querySelector(".paper");
+    pp.classList.remove("pdf");
+    pp.innerHTML = "";
     if (!document.querySelector(".item.open")) document.body.classList.remove("viewing");
   }
 
@@ -1485,10 +1591,16 @@
     items.forEach(i => { if (i !== item && i.classList.contains("open")) closeItem(i); });
     const btn = item.querySelector(".btn");
     const paper = item.querySelector(".paper");
+    paper.classList.remove("pdf");
     paper.innerHTML = "";
-    paper.appendChild(document.getElementById("tpl-" + btn.dataset.doc).content.cloneNode(true));
-    paper.dir = btn.dataset.dir;
-    paper.lang = btn.dataset.dir === "rtl" ? "ar" : "en";
+    if (btn.dataset.type === "pdf") {
+      paper.dir = "ltr";
+      showPdf(paper, btn.dataset.file);
+    } else {
+      paper.appendChild(document.getElementById("tpl-" + btn.dataset.doc).content.cloneNode(true));
+      paper.dir = btn.dataset.dir;
+      paper.lang = btn.dataset.dir === "rtl" ? "ar" : "en";
+    }
     item.querySelector(".panel").hidden = false;
     item.classList.add("open");
     btn.setAttribute("aria-expanded", "true");
@@ -1513,7 +1625,8 @@
       dd.setAttribute("aria-expanded", show);
     });
     item.querySelector(".dlWord").addEventListener("click", closeMenus);
-    item.querySelector(".printBtn").addEventListener("click", () => { closeMenus(); setTimeout(() => window.print(), 50); });
+    const pb = item.querySelector(".printBtn");
+    if (pb) pb.addEventListener("click", () => { closeMenus(); setTimeout(() => window.print(), 50); });
   });
 
   document.addEventListener("click", closeMenus);
