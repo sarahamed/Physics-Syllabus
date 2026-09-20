@@ -57,6 +57,25 @@
   .pdfmsg { padding: 28px 12px; color: #55697d; text-align: center; line-height: 1.8; }
   .pdfmsg a { color: #0b4f80; font-weight: 600; }
 
+
+  /* ---------- Page selection / print options (scanned PDF) ---------- */
+  .opts { padding: 14px 16px; background: #f3f7fb; border-bottom: 1px solid #d9e3ee; text-align: start; }
+  .opts[hidden] { display: none; }
+  .opts-row { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: .95rem; }
+  .opts-hint { color: #55697d; font-size: .85rem; }
+  .opts label.opts-row { flex-wrap: wrap; }
+  .opts input[type="text"], .opts select { width: 100%; max-width: 420px; padding: 10px 12px; border: 1px solid #b9c8d8; border-radius: 8px;
+    font: 16px "Segoe UI", Tahoma, Arial, sans-serif; background: #fff; color: #1b2a3a; }
+  .opts input[type="text"] { direction: ltr; text-align: left; margin: 0 0 12px; }
+  .opts-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .opts-actions button { font: 600 .92rem "Segoe UI", Tahoma, Arial, sans-serif; cursor: pointer; border: 0; border-radius: 8px; padding: 10px 16px; color: #fff; background: linear-gradient(135deg, #0b4f80, #1a74b8); }
+  .opts-actions button.act-dl { background: linear-gradient(135deg, #b8901a, #d9b13a); color: #1b2a3a; }
+  .opts-actions button.act-close { background: #dfe7f0; color: #1b2a3a; }
+  .opts-actions button:disabled { opacity: .55; cursor: wait; }
+  .opts-status { margin-top: 10px; min-height: 1.2em; font-size: .9rem; color: #0b4f80; }
+  .opts-status.err { color: #a12b2b; }
+  #printArea { display: none; }
+
   @media (max-width: 700px) {
     header { padding: 12px 14px; border-bottom-width: 4px; }
     .logos img { height: 78px; }
@@ -72,6 +91,8 @@
     .paper .doctitle { font-size: 1.2rem; }
     .paper .course { font-size: 1.02rem; }
     .menu { min-width: 200px; }
+    .opts { padding: 12px 12px; }
+    .opts-actions button { flex: 1 1 auto; }
   }
   @media (max-width: 380px) { .logos img { height: 62px; } h1.title { font-size: 1.1rem; } }
 
@@ -85,8 +106,19 @@
     body.viewing .paper { padding: 0; font-size: 12pt; }
     .paper p { orphans: 3; widows: 3; }
     @page { margin: 16mm; }
+    body.printing-pdf > *:not(#printArea) { display: none !important; }
+    body.printing-pdf { background: #fff; overflow: visible; }
+    body.printing-pdf #printArea { display: block; }
+    #printArea .pp { text-align: center; break-after: page; page-break-after: always; }
+    #printArea .pp:last-child { break-after: auto; page-break-after: auto; }
+    #printArea.one .pp img { max-width: 100%; max-height: 188mm; }
+    #printArea.two .pp { height: 138mm; break-after: auto; page-break-after: auto; }
+    #printArea.two .pp:nth-child(2n) { break-after: page; page-break-after: always; }
+    #printArea.two .pp:last-child { break-after: auto; page-break-after: auto; }
+    #printArea.two .pp img { max-width: 100%; max-height: 134mm; }
   }
 </style>
+<style id="pageStyle"></style>
 </head>
 <body>
   <header>
@@ -142,9 +174,29 @@
             <div class="dd">
               <button class="ddBtn" type="button" aria-haspopup="true" aria-expanded="false">⬇ تحميل ▾</button>
               <div class="menu">
-                <a class="dlWord" href="syllabus_edu_old.pdf" download="المحتوى العلمي تربوي (نظام قديم).pdf">📄 تحميل PDF</a>
+                <a class="dlWord" href="syllabus_edu_old.pdf" download="المحتوى العلمي تربوي (نظام قديم).pdf">📄 تحميل الملف كاملاً (PDF)</a>
+                <button class="optDl" type="button">✂ تحميل صفحات محددة…</button>
+                <button class="optPrint" type="button">🖨 خيارات الطباعة…</button>
               </div>
             </div>
+          </div>
+          <div class="opts" hidden>
+            <div class="opts-row"><strong>تحديد الصفحات</strong> <span class="opts-hint">(عدد صفحات الملف: <span class="pgTotal">…</span>)</span></div>
+            <label class="opts-row"><input type="radio" name="pgmode" value="all" checked> كل الصفحات</label>
+            <label class="opts-row"><input type="radio" name="pgmode" value="custom"> صفحات محددة</label>
+            <input type="text" class="pgInput" placeholder="مثال: 1-5, 8, 12-15" autocomplete="off" dir="ltr" aria-label="أرقام الصفحات">
+            <label class="opts-row">تخطيط الطباعة:
+              <select class="pgLayout">
+                <option value="one">صفحة واحدة في الورقة (أفقي)</option>
+                <option value="two">صفحتان في الورقة (رأسي)</option>
+              </select>
+            </label>
+            <div class="opts-actions">
+              <button type="button" class="act-dl">⬇ تحميل PDF</button>
+              <button type="button" class="act-print">🖨 طباعة</button>
+              <button type="button" class="act-close">إخفاء</button>
+            </div>
+            <div class="opts-status" role="status" aria-live="polite"></div>
           </div>
           <article class="paper"></article>
         </section>
@@ -153,6 +205,7 @@
   </main>
 
   <footer>Created by Sara Hamed</footer>
+  <div id="printArea" aria-hidden="true"></div>
 
   <template id="tpl-arb"><p class="doctitle"><strong><u>مقررات قسم الفيزياء</u></strong></p>
 
@@ -1581,6 +1634,7 @@
     item.querySelector(".btn").setAttribute("aria-expanded", "false");
     item.querySelector(".panel").hidden = true;
     stopPdf();
+    const ob = item.querySelector(".opts"); if (ob) ob.hidden = true;
     const pp = item.querySelector(".paper");
     pp.classList.remove("pdf");
     pp.innerHTML = "";
@@ -1627,6 +1681,163 @@
     item.querySelector(".dlWord").addEventListener("click", closeMenus);
     const pb = item.querySelector(".printBtn");
     if (pb) pb.addEventListener("click", () => { closeMenus(); setTimeout(() => window.print(), 50); });
+  });
+
+
+  /* ===== Scanned PDF: page selection, partial download, print options ===== */
+  const PDF_URL = "syllabus_edu_old.pdf";
+  const PDF_TITLE = "المحتوى العلمي تربوي (نظام قديم)";
+  const PDFLIB_SRC = "https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js";
+  let pdfDocPromise = null, pdfBytes = null;
+
+  function loadScriptOnce(src) {
+    return new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = src; s.onload = resolve; s.onerror = () => reject(new Error("load " + src));
+      document.head.appendChild(s);
+    });
+  }
+  function getPdfDoc() {
+    if (!pdfDocPromise) {
+      pdfDocPromise = loadPdfJs().then(lib => lib.getDocument({ url: PDF_URL }).promise);
+      pdfDocPromise.catch(() => { pdfDocPromise = null; });
+    }
+    return pdfDocPromise;
+  }
+
+  const pdfItem = document.getElementById("item-edu");
+  const optsBox = pdfItem.querySelector(".opts");
+  const optStatus = pdfItem.querySelector(".opts-status");
+  const pgInput = pdfItem.querySelector(".pgInput");
+  const actDl = pdfItem.querySelector(".act-dl");
+  const actPrint = pdfItem.querySelector(".act-print");
+
+  function setStatus(t, err) { optStatus.textContent = t || ""; optStatus.classList.toggle("err", !!err); }
+  function setBusy(b) { actDl.disabled = actPrint.disabled = b; }
+  function showOpts(mode) {
+    optsBox.hidden = false; setStatus("");
+    pdfItem.querySelector('input[name="pgmode"][value="' + mode + '"]').checked = true;
+    if (mode === "custom") pgInput.focus();
+    optsBox.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    getPdfDoc().then(d => { pdfItem.querySelector(".pgTotal").textContent = d.numPages; }).catch(() => {});
+  }
+  function parsePages(str, total) {
+    const ar = "٠١٢٣٤٥٦٧٨٩";
+    str = str.replace(/[٠-٩]/g, d => ar.indexOf(d)).replace(/[–—−]/g, "-").replace(/[،,;\s]+/g, ",").replace(/^,|,$/g, "");
+    if (!str) return { error: "أدخل أرقام الصفحات، مثال: 1-5, 8, 12-15" };
+    const set = new Set();
+    for (const part of str.split(",")) {
+      const m = part.match(/^(\d+)(?:-(\d+))?$/);
+      if (!m) return { error: "صيغة غير صحيحة: " + part };
+      const a = +m[1], b = m[2] ? +m[2] : a;
+      if (a < 1 || b > total || a > b) return { error: "أرقام الصفحات يجب أن تكون بين 1 و " + total + " (والبداية قبل النهاية)" };
+      for (let i = a; i <= b; i++) set.add(i);
+    }
+    return { pages: [...set].sort((x, y) => x - y) };
+  }
+  async function getSelection() {
+    const doc = await getPdfDoc();
+    const total = doc.numPages;
+    const mode = pdfItem.querySelector('input[name="pgmode"]:checked').value;
+    if (mode === "all") return { all: true, pages: Array.from({ length: total }, (_, i) => i + 1) };
+    const r = parsePages(pgInput.value, total);
+    return r.error ? { error: r.error } : { all: r.pages.length === total, pages: r.pages };
+  }
+  function rangeLabel(p) {
+    const out = []; let s = p[0], prev = p[0];
+    for (let i = 1; i <= p.length; i++) {
+      const c = p[i];
+      if (c !== prev + 1) { out.push(s === prev ? "" + s : s + "-" + prev); s = c; }
+      prev = c;
+    }
+    return out.join("_");
+  }
+  function saveBlob(blob, name) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+
+  async function downloadSelected() {
+    setBusy(true); setStatus("");
+    try {
+      const sel = await getSelection();
+      if (sel.error) { setStatus(sel.error, true); return; }
+      if (sel.all) {
+        const a = document.createElement("a");
+        a.href = PDF_URL; a.download = PDF_TITLE + ".pdf";
+        document.body.appendChild(a); a.click(); a.remove();
+        setStatus("بدأ تحميل الملف كاملاً.");
+        return;
+      }
+      setStatus("جارٍ تجهيز الملف...");
+      if (!window.PDFLib) await loadScriptOnce(PDFLIB_SRC);
+      if (!pdfBytes) {
+        const r = await fetch(PDF_URL);
+        if (!r.ok) throw new Error("fetch failed");
+        pdfBytes = await r.arrayBuffer();
+      }
+      const src = await PDFLib.PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+      const out = await PDFLib.PDFDocument.create();
+      const copied = await out.copyPages(src, sel.pages.map(n => n - 1));
+      copied.forEach(pg => out.addPage(pg));
+      const data = await out.save();
+      saveBlob(new Blob([data], { type: "application/pdf" }), PDF_TITLE + " - صفحات " + rangeLabel(sel.pages) + ".pdf");
+      setStatus("تم تجهيز الملف (" + sel.pages.length + " صفحة).");
+    } catch (e) {
+      setStatus("تعذّر تجهيز الملف. تأكدي من الاتصال بالإنترنت وأنك تفتحين الموقع المنشور.", true);
+    } finally { setBusy(false); }
+  }
+
+  async function printSelected() {
+    setBusy(true); setStatus("");
+    try {
+      const sel = await getSelection();
+      if (sel.error) { setStatus(sel.error, true); return; }
+      const layout = pdfItem.querySelector(".pgLayout").value;
+      const doc = await getPdfDoc();
+      const area = document.getElementById("printArea");
+      area.innerHTML = "";
+      for (let i = 0; i < sel.pages.length; i++) {
+        setStatus("جارٍ تجهيز الصفحات للطباعة... " + (i + 1) + " / " + sel.pages.length);
+        const page = await doc.getPage(sel.pages[i]);
+        const base = page.getViewport({ scale: 1 });
+        const vp = page.getViewport({ scale: 1500 / base.width });
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.floor(vp.width); canvas.height = Math.floor(vp.height);
+        await page.render({ canvasContext: canvas.getContext("2d"), viewport: vp }).promise;
+        const img = new Image();
+        img.src = canvas.toDataURL("image/jpeg", 0.85);
+        const wrap = document.createElement("div");
+        wrap.className = "pp"; wrap.appendChild(img);
+        area.appendChild(wrap);
+        canvas.width = canvas.height = 0;
+        await new Promise(r => setTimeout(r, 0));
+      }
+      area.className = layout;
+      document.getElementById("pageStyle").textContent =
+        layout === "two" ? "@page { size: A4 portrait; margin: 8mm; }" : "@page { size: A4 landscape; margin: 8mm; }";
+      await Promise.all([...area.querySelectorAll("img")].map(im => im.decode ? im.decode().catch(() => {}) : null));
+      setStatus("");
+      document.body.classList.add("printing-pdf");
+      window.print();
+    } catch (e) {
+      setStatus("تعذّرت الطباعة. تأكدي من أنك تفتحين الموقع المنشور.", true);
+    } finally { setBusy(false); }
+  }
+
+  pdfItem.querySelector(".optDl").addEventListener("click", () => { closeMenus(); showOpts("custom"); });
+  pdfItem.querySelector(".optPrint").addEventListener("click", () => { closeMenus(); showOpts("all"); });
+  pdfItem.querySelector(".act-close").addEventListener("click", () => { optsBox.hidden = true; });
+  pgInput.addEventListener("focus", () => { pdfItem.querySelector('input[name="pgmode"][value="custom"]').checked = true; });
+  actDl.addEventListener("click", downloadSelected);
+  actPrint.addEventListener("click", printSelected);
+  window.addEventListener("afterprint", () => {
+    document.body.classList.remove("printing-pdf");
+    document.getElementById("printArea").innerHTML = "";
+    document.getElementById("pageStyle").textContent = "";
   });
 
   document.addEventListener("click", closeMenus);
